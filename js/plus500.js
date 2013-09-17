@@ -1,3 +1,9 @@
+/**
+  * Plus500 javascript file sourced from: 
+  *   Chrome://http://trade.plus500.com/Trade 
+  *      DeveloperTools::Sources::Scripts::AllJsTrade.min.js, 
+  *   js code beautified with: http://jsbeautifier.org/
+  */  
 var a;
 (function (b) {
 		function c(g) {
