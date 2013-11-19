@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 # If you find this sample useful, please feel free to donate :)
-# LTC: LePiC6JKohb7w6PdFL2KDV1VoZJPFwqXgY
-# BTC: 1BzHpzqEVKjDQNCqV67Ju4dYL68aR8jTEe
+# LTC: Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x
+# BTC: 19ANGDaYUTcb7zokc2cXd3espshu9ZfczC
 
 import httplib
 import urllib
@@ -31,8 +31,11 @@ def getBlockChains(server, req, compile):
 	return float(e)
 
 # Replace these with your own API key data
-BTC_api_key = "OCM7MMKC-6NZGJD3U-9CA6UZQK-XD4FQEJT-1RJWY7MV"
-BTC_api_secret = "867ebdf127a2d0aff48dad5363fb558addd25d12a640e564d3396b7356434b5e"
+#BTC_api_key = "OCM7MMKC-6NZGJD3U-9CA6UZQK-XD4FQEJT-1RJWY7MV"
+#BTC_api_secret = "867ebdf127a2d0aff48dad5363fb558addd25d12a640e564d3396b7356434b5e"
+BTC_api_key = "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
+BTC_api_secret = "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
+
 # Come up with your own method for choosing an incrementing nonce
 #nonce = 13
 nonce = int(time.time())
@@ -71,7 +74,6 @@ arr = {}
 # register currency here and give it a portfolio weight
 dat = {
 	'ltc': [2,'Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x'],
-	#'btc': [1,'1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV'],
 	'btc': [1,'19ANGDaYUTcb7zokc2cXd3espshu9ZfczC'],
 	#'usd': [1],
 	'ftc':[0],
@@ -142,13 +144,13 @@ for i in arr:
 	except ZeroDivisionError, e:
 		print e
 	
-	print 'usdbal:'+str(arr[i]['usdbal'] )
-	print 'pcent:'+str(arr[i]['pcent'])
+	#print 'usdbal:'+str(arr[i]['usdbal'] )
+	#print 'pcent:'+str(arr[i]['pcent'])
 	try:		
 		pshould = nv(float(dat[i][0]) / tdat * 100)
 		usdbalshould = nv(arr[i]['usdbal'] / arr[i]['pcent'] * pshould)
-		print 'pshould:'+pshould
-		print 'usdbalshould:'+usdbalshould
+		#print 'pshould:'+pshould
+		#print 'usdbalshould:'+usdbalshould
 		tusdbalshould  += usdbalshould 
 	except:
 		"stub"
@@ -156,8 +158,8 @@ for i in arr:
 	try:
 		if arr[i]['bal'] > 0 or dat.has_key(i):
 			print i + ": \t" + str(arr[i]['bal']) + " \t" + str(arr[i]['usdbal']) + " \t" + str(arr[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(arr[i]['xsell'])
-			print 'usdbal:'+str(arr[i]['usdbal'])
-			print 'usdbalshould:'+str(usdbalshould)
+			#print 'usdbal:'+str(arr[i]['usdbal'])
+			#print 'usdbalshould:'+str(usdbalshould)
 			if arr[i]['usdbal'] > usdbalshould:
 				decrease = arr[i]['usdbal'] - usdbalshould
 				print  '\t\t\t\t\t\t\t\t-'+ str(decrease/arr[i]['xsell']) + ' ' + str(i) + " ie. \t\t" + str(decrease)+' USD'
