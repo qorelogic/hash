@@ -34,8 +34,8 @@ def getBlockChains(server, req, compile):
 # Replace these with your own API key data
 #BTC_api_key = "OCM7MMKC-6NZGJD3U-9CA6UZQK-XD4FQEJT-1RJWY7MV"
 #BTC_api_secret = "867ebdf127a2d0aff48dad5363fb558addd25d12a640e564d3396b7356434b5e"
-BTC_api_key = "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
-BTC_api_secret = "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
+BTC_api_key = "JY83Z3PQ-IG1HMU08-ETL8Q3OW-NTQQDSZ8-COLT8K9Y"
+BTC_api_secret = "865d33452b852df84f9dc0ddcfa6a5303bb453368f00f8b3a747e0f40686274d"
 
 # Come up with your own method for choosing an incrementing nonce
 #nonce = 13
