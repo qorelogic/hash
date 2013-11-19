@@ -11,6 +11,7 @@ import hashlib
 import hmac
 import time
 import re
+import sys
 
 def getBlockChains(server, req, compile):
 	headers = {"Content-type": "application/x-www-form-urlencoded","Sign":sign}
@@ -64,7 +65,12 @@ def nv(n):
 	#if n != '':
 	return float("%.2f" % float(n))
 
-res = json.load(response)['return']['funds']
+try:
+	res = json.load(response)['return']['funds']
+except:
+	print 'The btc-e API key pairs are not valid.'
+	print 'You may edit api key here: https://btc-e.com/profile#api_keys'
+	sys.exit()
 
 tusdbal = 0
 tusdbalshould  = 0 
