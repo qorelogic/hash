@@ -13,11 +13,25 @@ import time
 import re
 import sys
 
+def nv(n):
+	#return type(n)
+	#if n != '':
+	return float("%.2f" % float(n))
+	
+def nd(n,dec):
+	#return type(n)
+	#if n != '':
+	#'It will cost ${0} dollars.'.format(95)
+	#v = "%."+str(int(dec))+"f" % float(n)
+	v = "%.8f" % float(n)
+	#v = "{123}."+str(dec)+"f".format(float(n))
+	return float(v)
+	
 class bitcoin:
 	
 	def __init__(self):
 		self.logBuffer = ""
-	
+		
 	def getBlockChains(self, server, req, compile):
 		headers = {"Content-type": "application/x-www-form-urlencoded"}
 		params = {}
@@ -26,7 +40,6 @@ class bitcoin:
 		else:
 			conn = httplib.HTTPConnection(server)
 		url = 'https://'+server+str(req)
-		print '\t blockchain \t' + url
 		conn.request("GET", req, params, headers)
 		response = conn.getresponse()
 		content = response.read()
@@ -34,6 +47,9 @@ class bitcoin:
 
 		bal = re.findall(re.compile(compile, re.S), content)
 		e = bal[0][1]
+		
+		print '\t blockchain \t' + str(nd(e,8)) + '\t ' + url
+		
 		return float(e)
 		
 	
@@ -73,11 +89,6 @@ class bitcoin:
 		response = conn.getresponse()
 
 		self.log(str(response.status) + ' ' + str(response.reason))
-
-		def nv(n):
-			#return type(n)
-			#if n != '':
-			return float("%.2f" % float(n))
 
 		try:
 			responseBTCe = json.load(response)['return']['funds']
