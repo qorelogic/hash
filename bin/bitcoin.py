@@ -40,7 +40,6 @@ class bitcoin:
 		else:
 			conn = httplib.HTTPConnection(server)
 		url = 'https://'+server+str(req)
-		print '\t blockchain \t' + url
 		conn.request("GET", req, params, headers)
 		response = conn.getresponse()
 		content = response.read()
