@@ -261,8 +261,6 @@ class bitcoin:
 		print 'Total USD: ' + str(tusdbal)
 
 		conn.close()
-		
-		self.showLog()
 
 b = bitcoin()
 b.main()
