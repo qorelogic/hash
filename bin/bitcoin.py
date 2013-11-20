@@ -30,7 +30,7 @@ def getBlockChains(server, req, compile):
 	bal = re.findall(re.compile(compile, re.S), content)
 	e = bal[0][1]
 	return float(e)
-
+	
 # Replace these with your own API key data
 #BTC_api_key = "OCM7MMKC-6NZGJD3U-9CA6UZQK-XD4FQEJT-1RJWY7MV"
 #BTC_api_secret = "867ebdf127a2d0aff48dad5363fb558addd25d12a640e564d3396b7356434b5e"
@@ -78,9 +78,10 @@ tusdbalshould  = 0
 arr = {}
 # define portfolio weights
 # register currency here and give it a portfolio weight
+# list all your public keys (or those that you want to watch)
 dat = {
 	'ltc': [2,'Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x'],
-	'btc': [1,'19ANGDaYUTcb7zokc2cXd3espshu9ZfczC'],
+	'btc': [1,'19ANGDaYUTcb7zokc2cXd3espshu9ZfczC', '1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg'],
 	#'btc': [1],
 	
 	# todo: add the currencies below
@@ -129,20 +130,27 @@ for i in responseBTCe:
 	# balance from b
 	arr[i]['bal'] = responseBTCe[i]
 	
+	#print 'arr i1'
+	#print arr[i]
+	
 	# litecoin balance
 	if i == 'ltc':
-		arr[i]['bal'] += getBlockChains("litecoinscout.com", "/address/"+dat[i][1], '(Balance: (.*?) LTC)')
+		bal = getBlockChains("litecoinscout.com", "/address/"+dat[i][1], '(Balance: (.*?) LTC)')
+		#print 'bal ltc'
+		#print bal
+		arr[i]['bal'] += bal
 
 	# bitcoin balance
 	try:
 		if i == 'btc' and type(dat[i][1]):
-			arr[i]['bal'] += getBlockChains("blockchain.info", "/address/"+dat[i][1], '(Balance.*?([\d\.]+) BTC)')
+			bal = getBlockChains("blockchain.info", "/address/"+dat[i][1], '(Balance.*?([\d\.]+) BTC)')
+			#print 'bal btc'
+			#print bal
+			arr[i]['bal'] += bal
 	except:
 		''
-	
 	arr[i]['usdbal'] = nv(arr[i]['bal'] * arr[i]['xsell'])
 	tusdbal += nv(arr[i]['usdbal'])
-	
 		
 # header
 print ""
@@ -167,8 +175,14 @@ for i in arr:
 		"stub"
 	
 	try:
+		# if the currency has a balance
+		# if the currency is in the list of currencies to watch
 		if arr[i]['bal'] > 0 or dat.has_key(i):
+			
 			print i + ": \t" + str(arr[i]['bal']) + " \t" + str(arr[i]['usdbal']) + " \t" + str(arr[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(arr[i]['xsell'])
+			#print 'arr i2'
+			#print arr[i]
+			
 			#print 'usdbal:'+str(arr[i]['usdbal'])
 			#print 'usdbalshould:'+str(usdbalshould)
 			if arr[i]['usdbal'] > usdbalshould:
