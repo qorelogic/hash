@@ -86,6 +86,7 @@ class bitcoin:
 			
 		url = 'https://'+domain+"/api/2/"+str(i)+"_"+basec+"/ticker"
 		print '\t ticker \t' + url
+		print '\t---'
 		conn = httplib.HTTPSConnection(domain)
 		conn.request("POST", url, self.params, headers)
 		response = conn.getresponse()
@@ -131,7 +132,7 @@ class bitcoin:
 			#'btc': [1],
 			
 			# todo: add the currencies below
-			#'ftc':[0],
+			'ftc':[0.1,[]],
 			#ppc
 			# trc
 			# nmc
@@ -194,33 +195,41 @@ class bitcoin:
 
 		#body
 		for i in arr:
+			self.log('----------')
+			self.log('['+i+']')
 			try:
 				arr[i]['pcent'] = nv(arr[i]['usdbal'] / tusdbal * 100)
 			except ZeroDivisionError, e:
 				print e
 			
 			
-			self.log('usdbal:'+str(arr[i]['usdbal'] ))
-			self.log('pcent:'+str(arr[i]['pcent']))
+			self.log('usdbal['+i+']:'+str(arr[i]['usdbal'] ))
+			self.log('pcent['+i+']:'+str(arr[i]['pcent']))
+			pshould = 0
+			usdbalshould  = 0
 			try:		
 				pshould = nv(float(dat[i][0]) / tdat * 100)
-				usdbalshould = nv(arr[i]['usdbal'] / arr[i]['pcent'] * pshould)
-				self.log('pshould:'+pshould)
-				self.log('usdbalshould:'+usdbalshould)
-				tusdbalshould  += usdbalshould 
-			except:
-				"stub"
+			except KeyError, e:
+				print e
+			try:
+				#usdbalshould = nv(arr[i]['usdbal'] / arr[i]['pcent'] * pshould)
+				usdbalshould = nv(tusdbal * pshould / 100)
+			except ZeroDivisionError:
+				usdbalshould = nv(pshould)
+			self.log('pshould['+i+']:'+str(pshould))
+			self.log('usdbalshould['+i+']:'+str(usdbalshould))
+			tusdbalshould  += usdbalshould 
 			
 			try:
 				if arr[i]['bal'] > 0 or dat.has_key(i):
 					print i + ": \t" + str(arr[i]['bal']) + " \t" + str(arr[i]['usdbal']) + " \t" + str(arr[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(arr[i]['xsell'])
-					self.log('usdbal:'+str(arr[i]['usdbal']))
-					self.log('usdbalshould:'+str(usdbalshould))
+					self.log('usdbal['+i+']:'+str(arr[i]['usdbal']))
+					self.log('usdbalshould['+i+']:'+str(usdbalshould))
 					if arr[i]['usdbal'] > usdbalshould:
 						decrease = arr[i]['usdbal'] - usdbalshould
 						print  '\t\t\t\t\t\t\t\t-'+ str(decrease/arr[i]['xsell']) + ' ' + str(i) + " ie. \t\t" + str(decrease)+' USD'
 						print  ""
-					if arr[i]['usdbal'] < usdbalshould:
+					if arr[i]['usdbal'] <= usdbalshould:
 						increase = usdbalshould - arr[i]['usdbal']
 						print  '\t\t\t\t\t\t\t\t+'+ str(increase/arr[i]['xsell']) + ' ' + str(i) + " ie. \t" + str(increase)+' USD'
 						print ""
