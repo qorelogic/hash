@@ -144,15 +144,15 @@ class bitcoin:
 
 		# get balance data
 		print ""
+		print "= Blockchains & Brokers ========================================================="
+		print ""
 		for i in responseBTCe:
 			arr[i] = {}
 			arr[i]['xsell'] = 0
 			if responseBTCe[i] > 0 or dat.has_key(i):
 				print i
 				
-				ticker = self.getTicker(i)
-				
-				
+				ticker = self.getTicker(i)			
 				
 				try:
 					arr[i]['xsell'] = ticker['ticker']['sell']
@@ -160,7 +160,11 @@ class bitcoin:
 					'stub'
 			
 			# balance from b
-			arr[i]['bal'] = responseBTCe[i]
+			bal = responseBTCe[i]
+			if bal > 0:
+				print '\t btce['+i+'] \t' + str(nd(bal,8)) + '\t '
+				print '\t---'
+			arr[i]['bal'] = bal
 			
 			# litecoin balance
 			if i == 'ltc':
@@ -182,6 +186,9 @@ class bitcoin:
 			
 				
 		# header
+		print ""
+		print ""
+		print "= Accounts ======================================================================"
 		print ""
 		print "Coin \tBAL \t\tUSDBAL \t\tPercent \tSuggested % \tSell"
 
