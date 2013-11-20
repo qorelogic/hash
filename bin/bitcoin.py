@@ -30,6 +30,24 @@ def nd(n,dec):
 class bitcoin:
 	
 	def __init__(self):
+		# Replace these with your own API key data
+		self.BTC_api_key = "<api_key_here>" # "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
+		self.BTC_api_secret = "api_secret_here" # "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
+		
+		# Come up with your own method for choosing an incrementing nonce
+		#nonce = 13
+		nonce = int(time.time())
+
+		# method name and nonce go into the POST parameters
+		self.params = {"method":"getInfo",
+			  "nonce": nonce}
+		self.params = urllib.urlencode(self.params)
+
+		# Hash the params string to produce the Sign header value
+		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H.update(self.params)
+		self.sign = H.hexdigest()
+		
 		self.logBuffer = ""
 		
 	def getBlockChains(self, server, req, compile):
@@ -52,6 +70,27 @@ class bitcoin:
 		
 		return float(e)
 		
+	def getTicker(self, i):
+		headers = {"Content-type": "application/x-www-form-urlencoded",
+				   "Key":self.BTC_api_key,
+				   "Sign":self.sign}
+		domain = "btc-e.com"
+		
+		try:
+			if type(['ftc'].index(i)) == type(1):
+				basec = 'btc'
+			else:
+				basec = 'usd'
+		except:
+			basec = 'usd'
+			
+		url = 'https://'+domain+"/api/2/"+str(i)+"_"+basec+"/ticker"
+		print '\t ticker \t' + url
+		conn = httplib.HTTPSConnection(domain)
+		conn.request("POST", url, self.params, headers)
+		response = conn.getresponse()
+		ticker = json.load(response)
+		return ticker
 	
 	def log(self, str):
 		self.logBuffer += str+"\n"
@@ -63,29 +102,12 @@ class bitcoin:
 		print self.logBuffer
 
 	def main(self):
-		# Replace these with your own API key data
-		BTC_api_key = "<api_key_here>" # "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
-		BTC_api_secret = "api_secret_here" # "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
-
-		# Come up with your own method for choosing an incrementing nonce
-		#nonce = 13
-		nonce = int(time.time())
-
-		# method name and nonce go into the POST parameters
-		params = {"method":"getInfo",
-			  "nonce": nonce}
-		params = urllib.urlencode(params)
-
-		# Hash the params string to produce the Sign header value
-		H = hmac.new(BTC_api_secret, digestmod=hashlib.sha512)
-		H.update(params)
-		sign = H.hexdigest()
 		
 		headers = {"Content-type": "application/x-www-form-urlencoded",
-				   "Key":BTC_api_key,
-				   "Sign":sign}
+				   "Key":self.BTC_api_key,
+				   "Sign":self.sign}
 		conn = httplib.HTTPSConnection("btc-e.com")
-		conn.request("POST", "/tapi", params, headers)
+		conn.request("POST", "/tapi", self.params, headers)
 		response = conn.getresponse()
 
 		self.log(str(response.status) + ' ' + str(response.reason))
@@ -127,27 +149,13 @@ class bitcoin:
 			arr[i]['xsell'] = 0
 			if responseBTCe[i] > 0 or dat.has_key(i):
 				print i
-				headers = {"Content-type": "application/x-www-form-urlencoded",
-						   "Key":BTC_api_key,
-						   "Sign":sign}
-				domain = "btc-e.com"
+				
+				ticker = self.getTicker(i)
+				
+				
 				
 				try:
-					if type(['ftc'].index(i)) == type(1):
-						basec = 'btc'
-					else:
-						basec = 'usd'
-				except:
-					basec = 'usd'
-					
-				url = 'https://'+domain+"/api/2/"+str(i)+"_"+basec+"/ticker"
-				print '\t ticker \t' + url
-				conn = httplib.HTTPSConnection(domain)
-				conn.request("POST", url, params, headers)
-				response = conn.getresponse()
-				res2 = json.load(response)
-				try:
-					arr[i]['xsell'] = res2['ticker']['sell']
+					arr[i]['xsell'] = ticker['ticker']['sell']
 				except KeyError:
 					'stub'
 			
