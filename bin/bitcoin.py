@@ -66,7 +66,7 @@ def nv(n):
 	return float("%.2f" % float(n))
 
 try:
-	res = json.load(response)['return']['funds']
+	responseBTCe = json.load(response)['return']['funds']
 except:
 	print 'The btc-e API key pairs are not valid.'
 	print 'You may edit api key here: https://btc-e.com/profile#api_keys'
@@ -81,8 +81,10 @@ arr = {}
 dat = {
 	'ltc': [2,'Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x'],
 	'btc': [1,'19ANGDaYUTcb7zokc2cXd3espshu9ZfczC'],
-	#'usd': [1],
-	'ftc':[0],
+	#'btc': [1],
+	
+	# todo: add the currencies below
+	#'ftc':[0],
 	#ppc
 	# trc
 	# nmc
@@ -95,10 +97,10 @@ for i in dat:
 
 # get balance data
 print ""
-for i in res:
+for i in responseBTCe:
 	arr[i] = {}
 	arr[i]['xsell'] = 0
-	if res[i] > 0 or dat.has_key(i):
+	if responseBTCe[i] > 0 or dat.has_key(i):
 		print i
 		headers = {"Content-type": "application/x-www-form-urlencoded",
 				   "Key":BTC_api_key,
@@ -124,16 +126,19 @@ for i in res:
 		except KeyError:
 			'stub'
 	
-	# calc
-	arr[i]['bal'] = res[i]
+	# balance from b
+	arr[i]['bal'] = responseBTCe[i]
 	
 	# litecoin balance
 	if i == 'ltc':
-		arr[i]['bal'] = getBlockChains("litecoinscout.com", "/address/"+dat[i][1], '(Balance: (.*?) LTC)')
+		arr[i]['bal'] += getBlockChains("litecoinscout.com", "/address/"+dat[i][1], '(Balance: (.*?) LTC)')
 
 	# bitcoin balance
-	if i == 'btc':
-		arr[i]['bal'] = getBlockChains("blockchain.info", "/address/"+dat[i][1], '(Balance.*?([\d\.]+) BTC)')
+	try:
+		if i == 'btc' and type(dat[i][1]):
+			arr[i]['bal'] += getBlockChains("blockchain.info", "/address/"+dat[i][1], '(Balance.*?([\d\.]+) BTC)')
+	except:
+		''
 	
 	arr[i]['usdbal'] = nv(arr[i]['bal'] * arr[i]['xsell'])
 	tusdbal += nv(arr[i]['usdbal'])
