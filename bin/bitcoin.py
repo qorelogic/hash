@@ -93,8 +93,8 @@ class bitcoin:
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
 		dat = {
-			'ltc': [2,'Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x'],
-			'btc': [1,'19ANGDaYUTcb7zokc2cXd3espshu9ZfczC'],
+			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg']],
 			#'btc': [1],
 			
 			# todo: add the currencies below
@@ -145,14 +145,18 @@ class bitcoin:
 			
 			# litecoin balance
 			if i == 'ltc':
-				arr[i]['bal'] += self.getBlockChains("litecoinscout.com", "/address/"+dat[i][1], '(Balance: (.*?) LTC)')
+				for j in range(0, len(dat[i][1])):
+					bal = self.getBlockChains("litecoinscout.com", "/address/"+dat[i][1][j], '(Balance: (.*?) LTC)')
+					arr[i]['bal'] += bal
 
 			# bitcoin balance
 			try:
 				if i == 'btc' and type(dat[i][1]):
-					arr[i]['bal'] += self.getBlockChains("blockchain.info", "/address/"+dat[i][1], '(Balance.*?([\d\.]+) BTC)')
-			except:
-				''
+					for j in range(0, len(dat[i][1])):
+						bal = self.getBlockChains("blockchain.info", "/address/"+dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
+						arr[i]['bal'] += bal
+			except e:
+				print e
 			
 			arr[i]['usdbal'] = nv(arr[i]['bal'] * arr[i]['xsell'])
 			tusdbal += nv(arr[i]['usdbal'])
