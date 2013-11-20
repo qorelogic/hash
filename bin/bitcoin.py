@@ -14,6 +14,10 @@ import re
 import sys
 
 class bitcoin:
+	
+	def __init__(self):
+		self.logBuffer = ""
+	
 	def getBlockChains(self, server, req, compile):
 		headers = {"Content-type": "application/x-www-form-urlencoded"}
 		params = {}
@@ -31,6 +35,16 @@ class bitcoin:
 		bal = re.findall(re.compile(compile, re.S), content)
 		e = bal[0][1]
 		return float(e)
+		
+	
+	def log(self, str):
+		self.logBuffer += str+"\n"
+		
+	def showLog(self):
+		print ""
+		print "= LOGS =========================================================================="
+		print ""
+		print self.logBuffer
 
 	def main(self):
 		# Replace these with your own API key data
@@ -58,7 +72,7 @@ class bitcoin:
 		conn.request("POST", "/tapi", params, headers)
 		response = conn.getresponse()
 
-		#print response.status, response.reason
+		self.log(str(response.status) + ' ' + str(response.reason))
 
 		def nv(n):
 			#return type(n)
@@ -155,13 +169,14 @@ class bitcoin:
 			except ZeroDivisionError, e:
 				print e
 			
-			#print 'usdbal:'+str(arr[i]['usdbal'] )
-			#print 'pcent:'+str(arr[i]['pcent'])
+			
+			self.log('usdbal:'+str(arr[i]['usdbal'] ))
+			self.log('pcent:'+str(arr[i]['pcent']))
 			try:		
 				pshould = nv(float(dat[i][0]) / tdat * 100)
 				usdbalshould = nv(arr[i]['usdbal'] / arr[i]['pcent'] * pshould)
-				#print 'pshould:'+pshould
-				#print 'usdbalshould:'+usdbalshould
+				self.log('pshould:'+pshould)
+				self.log('usdbalshould:'+usdbalshould)
 				tusdbalshould  += usdbalshould 
 			except:
 				"stub"
@@ -169,8 +184,8 @@ class bitcoin:
 			try:
 				if arr[i]['bal'] > 0 or dat.has_key(i):
 					print i + ": \t" + str(arr[i]['bal']) + " \t" + str(arr[i]['usdbal']) + " \t" + str(arr[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(arr[i]['xsell'])
-					#print 'usdbal:'+str(arr[i]['usdbal'])
-					#print 'usdbalshould:'+str(usdbalshould)
+					self.log('usdbal:'+str(arr[i]['usdbal']))
+					self.log('usdbalshould:'+str(usdbalshould))
 					if arr[i]['usdbal'] > usdbalshould:
 						decrease = arr[i]['usdbal'] - usdbalshould
 						print  '\t\t\t\t\t\t\t\t-'+ str(decrease/arr[i]['xsell']) + ' ' + str(i) + " ie. \t\t" + str(decrease)+' USD'
@@ -188,6 +203,8 @@ class bitcoin:
 		print 'Total USD: ' + str(tusdbal)
 
 		conn.close()
+		
+		self.showLog()
 
 b = bitcoin()
 b.main()
