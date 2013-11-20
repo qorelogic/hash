@@ -264,3 +264,4 @@ class bitcoin:
 
 b = bitcoin()
 b.main()
+b.showLog()
