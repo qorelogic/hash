@@ -32,8 +32,8 @@ class bitcoin:
 	
 	def __init__(self):
 		# Replace these with your own API key data
-		self.BTC_api_key = "<api_key_here>" # "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
-		self.BTC_api_secret = "api_secret_here" # "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
+		self.BTC_api_key = "LQGSWHLL-X3LM8ZK1-MI7XXBRU-L8R9O8DY-P1J2EW69"
+		self.BTC_api_secret = "fe1b3bccfb7910cd5032c52fb33092ef8f5e3d5dedf7a75a217b508b74803851"
 		
 		# Come up with your own method for choosing an incrementing nonce
 		#nonce = 13
@@ -182,8 +182,8 @@ class bitcoin:
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
 		dat = {
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg']],
+			'ltc': [2,[]],
+			'btc': [1,[]],
 			#'btc': [1],
 			
 			# todo: add the self.currencies below
@@ -275,7 +275,7 @@ class bitcoin:
 			try:
 				self.currencies[i]['pcent'] = nv(self.currencies[i]['usdbal'] / tusdbal * 100)
 			except ZeroDivisionError, e:
-				print e
+				self.currencies[i]['pcent'] = 0
 			
 			
 			self.log('usdbal['+i+']:'+str(self.currencies[i]['usdbal'] ))
