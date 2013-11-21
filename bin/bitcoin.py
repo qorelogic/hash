@@ -230,7 +230,7 @@ class bitcoin:
 			try:
 				self.currencies[i]['pcent'] = nv(self.currencies[i]['usdbal'] / tusdbal * 100)
 			except ZeroDivisionError, e:
-				print e
+				self.currencies[i]['pcent'] = 0
 			
 			
 			self.log('usdbal['+i+']:'+str(self.currencies[i]['usdbal'] ))
