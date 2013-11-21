@@ -49,6 +49,7 @@ class bitcoin:
 		self.sign = H.hexdigest()
 		
 		self.logBuffer = ""
+		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm']
 		
 	def getBlockChains(self, server, req, compile):
 		headers = {"Content-type": "application/x-www-form-urlencoded"}
@@ -82,9 +83,8 @@ class bitcoin:
 			type(self.currencies[i])
 		except:
 			self.currencies[i] = {}
-			
 		try:
-			if type(['ftc'].index(i)) == type(1):
+			if type(self.btcBaseCurrencies.index(i)) == type(1):
 				self.currencies[i]['basecurr'] = 'btc'
 			else:
 				self.currencies[i]['basecurr'] = 'usd'
@@ -140,11 +140,11 @@ class bitcoin:
 			
 			# todo: add the self.currencies below
 			'ftc':[0.1,[]],
-			#ppc
-			# trc
-			# nmc
-			# ftc
-			# xpm
+			'nvc':[0.1,[]],
+			'ppc':[0.1,[]],
+			'trc':[0.1,[]],
+			'nmc':[0.1,[]],
+			'xpm':[0.1,[]],
 		}
 		tdat = 0
 		for i in dat:
@@ -195,7 +195,20 @@ class bitcoin:
 			except e:
 				print e
 			
-			self.currencies[i]['usdbal'] = nv(self.currencies[i]['bal'] * self.currencies[i]['xsell'])
+			try:
+				if type(self.btcBaseCurrencies.index(i)) == type(1):
+					self.currencies[i]['xrate'] = self.currencies[i]['xsell'] * self.currencies[i]['xbasecurr']
+				else:
+					self.currencies[i]['xrate'] = self.currencies[i]['xsell']
+			except:
+				self.currencies[i]['xrate'] = self.currencies[i]['xsell']
+			self.log('xrate:'+str(self.currencies[i]['xrate']))
+			try:
+				self.log('xbasecurr:'+str(self.currencies[i]['xbasecurr']))
+			except:
+				''
+			
+			self.currencies[i]['usdbal'] = nv(self.currencies[i]['bal'] * self.currencies[i]['xrate'])
 			tusdbal += nv(self.currencies[i]['usdbal'])
 			
 				
@@ -235,22 +248,16 @@ class bitcoin:
 			
 			#try:
 			if self.currencies[i]['bal'] > 0 or dat.has_key(i):
-				print i + ": \t" + str(self.currencies[i]['bal']) + " \t" + str(self.currencies[i]['usdbal']) + " \t" + str(self.currencies[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(self.currencies[i]['xsell'])
+				print i + ": \t" + str(self.currencies[i]['bal']) + " \t" + str(self.currencies[i]['usdbal']) + " \t" + str(self.currencies[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(self.currencies[i]['xrate'])
 				self.log('usdbal['+i+']:'+str(self.currencies[i]['usdbal']))
 				self.log('usdbalshouldb['+i+']:'+str(usdbalshould))
-				if i == 'ftc':
-					xrate = self.currencies[i]['xsell'] * self.currencies[i]['xbasecurr']
-				else:
-					xrate = self.currencies[i]['xsell']
-				self.log('xrate:'+str(xrate))
-				self.log('xbasecurr:'+str(self.currencies[i]['xbasecurr']))
 				if self.currencies[i]['usdbal'] > usdbalshould:
 					decrease = self.currencies[i]['usdbal'] - usdbalshould
-					print  '\t\t\t\t\t\t\t\t-'+ str(decrease / xrate) + ' ' + str(i) + " ie. \t\t" + str(decrease)+' USD'
+					print  '\t\t\t\t\t\t\t\t-'+ str(decrease / self.currencies[i]['xrate']) + ' ' + str(i) + " ie. \t\t" + str(decrease)+' USD'
 					print  ""
 				if self.currencies[i]['usdbal'] <= usdbalshould:
 					increase = usdbalshould - self.currencies[i]['usdbal']
-					print  '\t\t\t\t\t\t\t\t+'+ str(increase / xrate) + ' ' + str(i) + " ie. \t" + str(increase)+' USD'
+					print  '\t\t\t\t\t\t\t\t+'+ str(increase / self.currencies[i]['xrate']) + ' ' + str(i) + " ie. \t" + str(increase)+' USD'
 					print ""
 			else:
 				''
