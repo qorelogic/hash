@@ -37,11 +37,11 @@ class bitcoin:
 		
 		# Come up with your own method for choosing an incrementing nonce
 		#nonce = 13
-		nonce = int(time.time())
+		self.nonce = int(time.time())
 
 		# method name and nonce go into the POST parameters
 		self.params = {"method":"getInfo",
-			  "nonce": nonce}
+			  "nonce": self.nonce}
 		self.params = urllib.urlencode(self.params)
 
 		# Hash the params string to produce the Sign header value
@@ -51,6 +51,8 @@ class bitcoin:
 		
 		self.logBuffer = ""
 		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm']
+		
+		self.currencies = {}
 		
 	def getBlockChains(self, server, req, compile):
 		headers = {"Content-type": "application/x-www-form-urlencoded"}
@@ -80,7 +82,6 @@ class bitcoin:
 				   "Sign":self.sign}
 		domain = "btc-e.com"
 		
-		
 		# initialize self.currencies[i] if not a dictionary
 		try:
 			type(self.currencies[i])
@@ -93,15 +94,60 @@ class bitcoin:
 				self.currencies[i]['basecurr'] = 'usd'
 		except:
 			self.currencies[i]['basecurr'] = 'usd'
-			
-		url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
+		
+		pair = str(i)+"_"+self.currencies[i]['basecurr']
+		url = 'https://'+domain+"/api/2/"+pair+"/ticker"
 		print '\tticker\t\t\t' + url
 		print '\t---'
 		conn = httplib.HTTPSConnection(domain)
 		conn.request("POST", url, self.params, headers)
 		response = conn.getresponse()
 		ticker = json.load(response)
+		ticker['ticker']['pair'] = pair
 		return ticker
+	
+	#def sendTrade(self, pair, type, rate, amount):
+	def sendTrade(self, currency, type, amount):
+		headers = {"Content-type": "application/x-www-form-urlencoded",
+				   "Key":self.BTC_api_key,
+				   "Sign":self.sign}
+		domain = "btc-e.com"
+		
+		# initialize self.currencies[i] if not a dictionary
+		#try:
+		#	type(self.currencies[i])
+		#except:
+		#	self.currencies[i] = {}
+		#try:
+		#	if type(self.btcBaseCurrencies.index(i)) == type(1):
+		#		self.currencies[i]['basecurr'] = 'btc'
+		#	else:
+		#		self.currencies[i]['basecurr'] = 'usd'
+		#except:
+		#	self.currencies[i]['basecurr'] = 'usd'
+			
+		e = b.getTicker(currency)['ticker']
+		print e
+		
+		# method name and nonce go into the POST parameters
+		self.params = {"method":"getInfo",
+			  "nonce": self.nonce,
+			  "pair": e['pair'],
+			  "type": type,
+			  "rate": e[type],
+			  "amount": amount}
+		self.params = urllib.urlencode(self.params)
+		
+		#url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
+		url = 'https://'+domain+"/tapi"
+		print '\tticker\t\t\t' + url
+		print '\t---'
+		conn = httplib.HTTPSConnection(domain)
+		#conn.request("POST", url, self.params, headers)
+		#response = conn.getresponse()
+		#print response
+		#ticker = json.load(response)
+		#return ticker
 	
 	def log(self, str):
 		self.logBuffer += str+"\n"
@@ -133,7 +179,6 @@ class bitcoin:
 		tusdbal = 0
 		tusdbalshould  = 0 
 
-		self.currencies = {}
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
 		dat = {
@@ -291,4 +336,8 @@ class bitcoin:
 		conn.close()
 
 b = bitcoin()
-b.main()
+#b.main()
+#t = b.getTicker('ltc')
+#print t
+b.sendTrade('ltc', 'buy', 1)
+b.showLog()
