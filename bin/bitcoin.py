@@ -12,6 +12,7 @@ import hmac
 import time
 import re
 import sys
+import string
 
 def nv(n):
 	#return type(n)
@@ -67,7 +68,9 @@ class bitcoin:
 		bal = re.findall(re.compile(compile, re.S), content)
 		e = bal[0][1]
 		
-		print '\t blockchain \t' + str(nd(e,8)) + '\t ' + url
+		print '\t blockchain \t',
+		print '%.8f' % nd(e,8),
+		print '\t ' + url
 		
 		return float(e)
 		
@@ -92,7 +95,7 @@ class bitcoin:
 			self.currencies[i]['basecurr'] = 'usd'
 			
 		url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
-		print '\t ticker \t' + url
+		print '\tticker\t\t\t' + url
 		print '\t---'
 		conn = httplib.HTTPSConnection(domain)
 		conn.request("POST", url, self.params, headers)
@@ -173,10 +176,11 @@ class bitcoin:
 					'stub'
 					
 			
-			# balance from b
+			# balance from btc
 			bal = responseBTCe[i]
 			if bal > 0:
-				print '\t btce['+i+'] \t' + str(nd(bal,8)) + '\t '
+				print '\t btce['+i+'] \t',
+				print '%.8f' % nd(bal,8)
 				print '\t---'
 			self.currencies[i]['bal'] = bal
 			
@@ -248,17 +252,34 @@ class bitcoin:
 			
 			#try:
 			if self.currencies[i]['bal'] > 0 or dat.has_key(i):
-				print i + ": \t" + str(self.currencies[i]['bal']) + " \t" + str(self.currencies[i]['usdbal']) + " \t" + str(self.currencies[i]['pcent'])+"% \t\t" + str(pshould) + "% \t" + str(self.currencies[i]['xrate'])
+				print i + ": \t",
+				print '%.8f' % self.currencies[i]['bal'],
+				print " \t",
+				print '%.8f' % self.currencies[i]['usdbal'],
+				print " \t",
+				print '%.3f' % self.currencies[i]['pcent'],
+				print "% \t",
+				print '%.3f' % pshould,
+				print "% \t",
+				print '%.8f' % self.currencies[i]['xrate'],
 				self.log('usdbal['+i+']:'+str(self.currencies[i]['usdbal']))
 				self.log('usdbalshouldb['+i+']:'+str(usdbalshould))
 				if self.currencies[i]['usdbal'] > usdbalshould:
 					decrease = self.currencies[i]['usdbal'] - usdbalshould
-					print  '\t\t\t\t\t\t\t\t-'+ str(decrease / self.currencies[i]['xrate']) + ' ' + str(i) + " ie. \t\t" + str(decrease)+' USD'
-					print  ""
+					print  '\t-',
+					print '%.2f' % (decrease / self.currencies[i]['xrate']),
+					print ' ' + str(i) + "\t[USD",
+					print '%.4f' % decrease,
+					print ']'
+					#print  ""
 				if self.currencies[i]['usdbal'] <= usdbalshould:
 					increase = usdbalshould - self.currencies[i]['usdbal']
-					print  '\t\t\t\t\t\t\t\t+'+ str(increase / self.currencies[i]['xrate']) + ' ' + str(i) + " ie. \t" + str(increase)+' USD'
-					print ""
+					print  '\t+',
+					print string.zfill('%.2f' % (increase / self.currencies[i]['xrate']), 5),
+					print ' ' + str(i) + "\t[USD",
+					print '%.4f' % increase,
+					print ']'
+					#print ""
 			else:
 				''
 			#except Error, e:
