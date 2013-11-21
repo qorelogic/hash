@@ -108,10 +108,6 @@ class bitcoin:
 	
 	#def sendTrade(self, pair, type, rate, amount):
 	def sendTrade(self, currency, type, amount):
-		headers = {"Content-type": "application/x-www-form-urlencoded",
-				   "Key":self.BTC_api_key,
-				   "Sign":self.sign}
-		domain = "btc-e.com"
 		
 		# initialize self.currencies[i] if not a dictionary
 		#try:
@@ -130,7 +126,7 @@ class bitcoin:
 		print e
 		
 		# method name and nonce go into the POST parameters
-		self.params = {"method":"getInfo",
+		self.params = {"method":"Trade",
 			  "nonce": self.nonce,
 			  "pair": e['pair'],
 			  "type": type,
@@ -138,15 +134,24 @@ class bitcoin:
 			  "amount": amount}
 		self.params = urllib.urlencode(self.params)
 		
+		# Hash the params string to produce the Sign header value
+		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H.update(self.params)
+		self.sign = H.hexdigest()
+		headers = {"Content-type": "application/x-www-form-urlencoded",
+				   "Key":self.BTC_api_key,
+				   "Sign":self.sign}
+		domain = "btc-e.com"
 		#url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
 		url = 'https://'+domain+"/tapi"
 		print '\tticker\t\t\t' + url
 		print '\t---'
 		conn = httplib.HTTPSConnection(domain)
-		#conn.request("POST", url, self.params, headers)
-		#response = conn.getresponse()
-		#print response
-		#ticker = json.load(response)
+		conn.request("POST", url, self.params, headers)
+		response = conn.getresponse()
+		print response
+		ticker = json.load(response)
+		print ticker
 		#return ticker
 	
 	def log(self, str):
