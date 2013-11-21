@@ -137,8 +137,8 @@ class bitcoin:
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
 		dat = {
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg']],
+			'ltc': [2,[]],
+			'btc': [1,[]],
 			#'btc': [1],
 			
 			# todo: add the self.currencies below
@@ -292,3 +292,4 @@ class bitcoin:
 
 b = bitcoin()
 b.main()
+b.showLogs()
