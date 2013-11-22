@@ -156,6 +156,9 @@ class bitcoin:
 			'nmc':[0.1,[]],
 			'xpm':[0.1,[]],
 		}
+		brokerBlockchains = {
+			'btc':[dat['btc'][1][0]],
+		}
 		tdat = 0
 		for i in dat:
 			tdat += dat[i][0]
@@ -204,8 +207,14 @@ class bitcoin:
 			try:
 				if i == 'btc' and type(dat[i][1]):
 					for j in range(0, len(dat[i][1])):
-						bal = self.getBlockChains("blockchain.info", "/address/"+dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
-						self.currencies[i]['bal'] += bal
+						#if dat[i][1][j] != brokerBlockchains[i][0]:
+						try:
+							bal = self.getBlockChains("blockchain.info", "/address/"+dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
+							# if brokerBlockcians has no index dat[i][1][j], it throws a ValueError
+							brokerBlockchains[i].index(dat[i][1][j])
+						except ValueError, e:
+							# add to balance if dat[i][1][j] is not registered in brokerBlockchains
+							self.currencies[i]['bal'] += bal
 			except e:
 				print e
 			
