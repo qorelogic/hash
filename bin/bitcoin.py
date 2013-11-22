@@ -157,6 +157,13 @@ class bitcoin:
 	def log(self, str):
 		self.logBuffer += str+"\n"
 		
+	# simple log balance to file
+	def logToFile(self, currency, balance):
+		f = open('bitcoin.log', 'a')
+		f.write(time.ctime()+','+str(time.time())+','+currency+','+str(balance)+"\n")
+		f.close()
+		
+		
 	def showLog(self):
 		print ""
 		print "= LOGS =========================================================================="
@@ -232,6 +239,9 @@ class bitcoin:
 				print '\t btce['+i+'] \t',
 				print '%.8f' % nd(bal,8)
 				print '\t---'
+				# log the broker(btce) balance to file, save the balance for future reference
+				# do not trust that the broker can record your actual balance.
+				self.logToFile(i, bal)
 			self.currencies[i]['bal'] = bal
 			
 			# litecoin balance
