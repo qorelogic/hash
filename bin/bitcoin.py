@@ -34,12 +34,8 @@ class bitcoin:
 	
 	def __init__(self):
 		# Replace these with your own API key data
-		# hash1
-		self.BTC_api_key = "LQGSWHLL-X3LM8ZK1-MI7XXBRU-L8R9O8DY-P1J2EW69"
-		self.BTC_api_secret = "fe1b3bccfb7910cd5032c52fb33092ef8f5e3d5dedf7a75a217b508b74803851"
-		# hash2
-		self.BTC_api_key = "SP1XUQH9-UJ1EX3QI-UZ8AU8KY-KOP98GV3-SG57YIN6"
-		self.BTC_api_secret = "766081bcf3e7532bc7e0e7d9ab81c1234b3ece6d8529bfb23c8069dde61d3e86"
+		self.BTC_api_key = "<api_key_here>" # "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
+		self.BTC_api_secret = "api_secret_here" # "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
 		
 		self.logBuffer = ""
 		
@@ -449,6 +445,6 @@ b = bitcoin()
 #print t
 #b.sendTrade('btc_usd', 'sell', 0.01)
 #b.sendTrade('ppc_btc', 'buy', 0.1)
-b.sendTrade('xpm_btc', 'buy', 0.1)
-#b.main()
+#b.sendTrade('xpm_btc', 'buy', 0.1)
+b.main()
 #b.showLog()
