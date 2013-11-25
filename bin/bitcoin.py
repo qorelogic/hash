@@ -13,6 +13,8 @@ import time
 import re
 import sys
 import string
+import datetime
+import re
 
 def nv(n):
 	#return type(n)
@@ -35,13 +37,11 @@ class bitcoin:
 		self.BTC_api_key = "JY83Z3PQ-IG1HMU08-ETL8Q3OW-NTQQDSZ8-COLT8K9Y"
 		self.BTC_api_secret = "865d33452b852df84f9dc0ddcfa6a5303bb453368f00f8b3a747e0f40686274d"
 		
-		# Come up with your own method for choosing an incrementing nonce
-		#nonce = 13
-		nonce = int(time.time())
-
+		self.logBuffer = ""
+		
 		# method name and nonce go into the POST parameters
 		self.params = {"method":"getInfo",
-			  "nonce": nonce}
+			  "nonce": self.getNonce()}
 		self.params = urllib.urlencode(self.params)
 
 		# Hash the params string to produce the Sign header value
@@ -49,10 +49,68 @@ class bitcoin:
 		H.update(self.params)
 		self.sign = H.hexdigest()
 		
-		self.logBuffer = ""
 		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm']
 		
+		self.currencies = {}
+		
+	def getNonce(self):
+		self.log('getNonce')
+		# Come up with your own method for choosing an incrementing nonce
+		#nonce = 13
+		#mks = datetime.datetime.now().microsecond
+		#print mks
+		#self.nonce = int(time.time())*1000000 + mks
+		#self.nonce = mks * 10000
+		f = file('bitcoin.dat','r')
+		try:
+			nonce = f.read()
+			f.close()
+			nonce = int(re.sub(re.compile(r'.*?nonce\:(.*?)', re.S),'\\1',nonce))
+			nonce += 1
+			#print nonce
+		except IOError, e:
+			''
+		f = file('bitcoin.dat','w')
+		f.write('nonce:'+str(nonce)+"\n")
+		f.close()
+		self.nonce = nonce
+		return self.nonce
+		
+	def getInfo(self):
+		self.log('getInfo')
+		# todo: below lines repeated above, remove code replication
+		# method name and nonce go into the POST parameters
+		self.params = {"method":"getInfo",
+			  "nonce": self.getNonce()}
+		self.params = urllib.urlencode(self.params)
+
+		# Hash the params string to produce the Sign header value
+		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H.update(self.params)
+		self.sign = H.hexdigest()
+		headers = {"Content-type": "application/x-www-form-urlencoded",
+				   "Key":self.BTC_api_key,
+				   "Sign":self.sign}
+		domain = "btc-e.com"
+		url = 'https://'+domain+"/tapi"
+		conn = httplib.HTTPSConnection(domain)
+		conn.request("POST", url, self.params, headers)
+		response = conn.getresponse()
+		res = json.load(response)
+		self.info = res['return']['funds']
+		return self.info
+		
+	def getBalance(self, curr):
+		self.log('getBlanace')
+		self.getNonce()
+		self.getInfo()
+		print self.info[curr]
+		
+		self.currencies = {}
+		
 	def getBlockChains(self, server, req, compile):
+		self.log('getBlockChains')
+		self.getNonce()
 		headers = {"Content-type": "application/x-www-form-urlencoded"}
 		params = {}
 		if server == "blockchain.info":
@@ -75,11 +133,16 @@ class bitcoin:
 		return float(e)
 		
 	def getTicker(self, i):
+		self.log('getTicker '+i)
+		
+		if i == 'usd':
+			return None
+			
+		self.getNonce()
 		headers = {"Content-type": "application/x-www-form-urlencoded",
 				   "Key":self.BTC_api_key,
 				   "Sign":self.sign}
 		domain = "btc-e.com"
-		
 		
 		# initialize self.currencies[i] if not a dictionary
 		try:
@@ -93,16 +156,75 @@ class bitcoin:
 				self.currencies[i]['basecurr'] = 'usd'
 		except:
 			self.currencies[i]['basecurr'] = 'usd'
-			
-		url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
+		
+		pair = str(i)+"_"+self.currencies[i]['basecurr']
+		url = 'https://'+domain+"/api/2/"+pair+"/ticker"
 		print '\tticker\t\t\t' + url
 		print '\t---'
+		try:
+			conn = httplib.HTTPSConnection(domain)
+			conn.request("POST", url, self.params, headers)
+			response = conn.getresponse()
+			ticker = json.load(response)
+			ticker['ticker']['pair'] = pair
+			return ticker
+		except:
+			'stub'
+	
+	#def sendTrade(self, pair, type, rate, amount):
+	def sendTrade(self, currencyPair, type, amount):
+		self.log('sendTrade')
+		self.getNonce()
+		
+		# initialize self.currencies[i] if not a dictionary
+		#try:
+		#	type(self.currencies[i])
+		#except:
+		#	self.currencies[i] = {}
+		#try:
+		#	if type(self.btcBaseCurrencies.index(i)) == type(1):
+		#		self.currencies[i]['basecurr'] = 'btc'
+		#	else:
+		#		self.currencies[i]['basecurr'] = 'usd'
+		#except:
+		#	self.currencies[i]['basecurr'] = 'usd'
+			
+		e = self.getTicker(currencyPair[0]+currencyPair[1]+currencyPair[2])['ticker']
+				
+		# method name and nonce go into the POST parameters
+		self.getNonce()
+		self.params = {"method":"Trade",
+			  "nonce": self.getNonce(),
+			 #"pair": e['pair'],
+			  "pair": currencyPair,
+			  "type": type,
+			  "rate": e[type],
+			  "amount": amount}
+		self.params = urllib.urlencode(self.params)
+		
+		# Hash the params string to produce the Sign header value
+		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H.update(self.params)
+		self.sign = H.hexdigest()
+		headers = {"Content-type": "application/x-www-form-urlencoded",
+				   "Key":self.BTC_api_key,
+				   "Sign":self.sign}
+		domain = "btc-e.com"
+		#url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
+		url = 'https://'+domain+"/tapi"
+		print '\tticker\t\t\t' + url
+		print '\t---'
+		self.log(str(b.getInfo()))
+		
 		conn = httplib.HTTPSConnection(domain)
 		conn.request("POST", url, self.params, headers)
 		response = conn.getresponse()
 		ticker = json.load(response)
-		return ticker
-	
+		
+		self.log(str(b.getInfo()))
+		
+		#return ticker
+
 	def log(self, str):
 		self.logBuffer += str+"\n"
 		
@@ -120,32 +242,42 @@ class bitcoin:
 		print self.logBuffer
 
 	def main(self):
+		self.log('main')
+		# Hash the params string to produce the Sign header value
+		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H.update(self.params)
+		self.sign = H.hexdigest()
 		
-		headers = {"Content-type": "application/x-www-form-urlencoded",
-				   "Key":self.BTC_api_key,
-				   "Sign":self.sign}
-		conn = httplib.HTTPSConnection("btc-e.com")
-		conn.request("POST", "/tapi", self.params, headers)
-		response = conn.getresponse()
+		self.getInfo()
+		self.getNonce()
 
-		self.log(str(response.status) + ' ' + str(response.reason))
+		#headers = {"Content-type": "application/x-www-form-urlencoded",
+		#		   "Key":self.BTC_api_key,
+		#		   "Sign":self.sign}
+		#conn = httplib.HTTPSConnection("btc-e.com")
+		#conn.request("POST", "/tapi", self.params, headers)
+		#response = conn.getresponse()
 
-		try:
-			responseBTCe = json.load(response)['return']['funds']
-		except:
-			print 'The btc-e API key pairs are not valid.'
-			print 'You may edit api key here: https://btc-e.com/profile#api_keys'
-			sys.exit()
+		#self.log(str(response.status) + ' ' + str(response.reason))
+
+		#try:
+		#res = json.load(response)
+		#print res
+		#responseBTCe = res['return']['funds']
+		responseBTCe = self.getInfo()
+		#except:
+		#	print 'The btc-e API key pairs are not valid.'
+		#	print 'You may edit api key here: https://btc-e.com/profile#api_keys'
+		#	sys.exit()
 
 		tusdbal = 0
 		tusdbalshould  = 0 
 
-		self.currencies = {}
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
 		dat = {
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg']],
+			'ltc': [2,[]],
+			'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
 			#'btc': [1],
 			
 			# todo: add the self.currencies below
@@ -175,16 +307,17 @@ class bitcoin:
 				print i
 				
 				ticker = self.getTicker(i)
-				
 				try:
 					self.currencies[i]['xsell'] = ticker['ticker']['sell']
 				except KeyError:
 					'stub'
+				except TypeError:
+					self.currencies[i]['xsell'] = 1
+					
 				try:
 					self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
 				except KeyError:
 					'stub'
-					
 			
 			# balance from btc
 			bal = responseBTCe[i]
@@ -307,8 +440,11 @@ class bitcoin:
 		#footer
 		print 'Total USD: ' + str(tusdbal)
 
-		conn.close()
-
 b = bitcoin()
+#t = b.getTicker('ltc')
+#print t
+#b.sendTrade('btc_usd', 'sell', 0.01)
+#b.sendTrade('ppc_btc', 'buy', 0.1)
+#b.sendTrade('xpm_btc', 'buy', 0.1)
 b.main()
 b.showLog()
