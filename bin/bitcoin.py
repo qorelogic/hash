@@ -97,7 +97,12 @@ class bitcoin:
 		conn.request("POST", url, self.params, headers)
 		response = conn.getresponse()
 		res = json.load(response)
-		self.info = res['return']['funds']
+		try:
+			self.info = res['return']['funds']
+		except KeyError, e:
+			print res['error']
+			print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'
+			sys.exit()
 		return self.info
 		
 	def getBalance(self, curr):
