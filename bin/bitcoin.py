@@ -100,8 +100,14 @@ class bitcoin:
 		try:
 			self.info = res['return']['funds']
 		except KeyError, e:
-			print res['error']
-			print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'
+			err = res['error']
+			if err == 'invalid api key':
+				print 'Your API key is invalid, please generate a new API key from your userpanel at http://btc-e.com under \'API keys\'.'
+				print 'Update the variable: self.BTC_api_key with the new key'
+				print 'Update the variable: self.BTC_api_secret with the new secret'
+			else:
+				print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'
+			
 			sys.exit()
 		return self.info
 		
