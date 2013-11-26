@@ -289,8 +289,9 @@ class bitcoin:
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
 		dat = {
-			'ltc': [2,[]],
-			'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
+			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
+			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg']],
 			#'btc': [1],
 			
 			# todo: add the self.currencies below
