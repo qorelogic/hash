@@ -292,7 +292,7 @@ class bitcoin:
 		dat = {
 			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
 			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB']],
+			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn']],
 			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr']],
 			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
 			#'btc': [1],
@@ -304,6 +304,7 @@ class bitcoin:
 			'trc':[0.1,[]],
 			'nmc':[0.1,[]],
 			'xpm':[0.1,[]],
+			'usd':[0.1,[]],
 		}
 		brokerBlockchains = {
 			'btc':[dat['btc'][1][0]],
