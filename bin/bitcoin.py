@@ -135,6 +135,7 @@ class bitcoin:
 		response = conn.getresponse()
 		content = response.read()
 		conn.close()
+		#print content
 
 		bal = re.findall(re.compile(compile, re.S), content)
 		e = bal[0][1]
@@ -290,8 +291,10 @@ class bitcoin:
 		# register currency here and give it a portfolio weight
 		dat = {
 			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg']],
+			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
+			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB']],
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr']],
+			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
 			#'btc': [1],
 			
 			# todo: add the self.currencies below
@@ -362,8 +365,9 @@ class bitcoin:
 						except ValueError, e:
 							# add to balance if dat[i][1][j] is not registered in brokerBlockchains
 							self.currencies[i]['bal'] += bal
-			except e:
-				print e
+			except:
+				#print e
+				''
 			
 			try:
 				if type(self.btcBaseCurrencies.index(i)) == type(1):
