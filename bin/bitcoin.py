@@ -34,10 +34,8 @@ class bitcoin:
 	
 	def __init__(self):
 		# Replace these with your own API key data
-		#self.BTC_api_key = "JY83Z3PQ-IG1HMU08-ETL8Q3OW-NTQQDSZ8-COLT8K9Y"
-		#self.BTC_api_secret = "865d33452b852df84f9dc0ddcfa6a5303bb453368f00f8b3a747e0f40686274d"
-		self.BTC_api_key = "0361F7UQ-RM8O1ULD-OQHVG5UE-NHUPLIBG-LD666U7J"
-		self.BTC_api_secret = "9df5c8a1250103f71f03b44f428c87726597fb27d40d7a065070ef3335401a00"
+		self.BTC_api_key = "<api_key_here>" # "CC0FUOOA-6AD32F04-X04TYQFB-OE0YPRWI-2ARC4CUT"
+		self.BTC_api_secret = "api_secret_here" # "a617435dccc3ca5f5162d934c2e03b42194f0a94a79eb6fbd170fb60c07bbe8d"
 		
 		self.logBuffer = ""
 		
