@@ -207,6 +207,7 @@ class bitcoin:
 		e = self.getTicker(currencyPair[0]+currencyPair[1]+currencyPair[2])['ticker']
 				
 		# method name and nonce go into the POST parameters
+		self.log(str(b.getInfo()))
 		self.getNonce()
 		self.params = {"method":"Trade",
 			  "nonce": self.getNonce(),
@@ -229,16 +230,16 @@ class bitcoin:
 		url = 'https://'+domain+"/tapi"
 		print '\tticker\t\t\t' + url
 		print '\t---'
-		self.log(str(b.getInfo()))
 		
 		conn = httplib.HTTPSConnection(domain)
 		conn.request("POST", url, self.params, headers)
 		response = conn.getresponse()
 		ticker = json.load(response)
 		
+		self.log(str(ticker))
 		self.log(str(b.getInfo()))
 		
-		#return ticker
+		return ticker
 
 	def log(self, str):
 		self.logBuffer += str+"\n"
@@ -295,7 +296,7 @@ class bitcoin:
 			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
 			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LXZc3HdmDGmfhV4hMoxwtsg29jVozRSFCf']],
 			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LUT1MTSGaUcW9BCk1fYx3cBNLQBYbK8MGr']],
-			#																																		localbitcoins
+			#
 			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX']],
 			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
 			#'btc': [1],
@@ -477,13 +478,3 @@ class bitcoin:
 		f = file('bitcoin.json','w')
 		f.write(j)
 		f.close()
-		
-
-b = bitcoin()
-#t = b.getTicker('ltc')
-#print t
-#b.sendTrade('btc_usd', 'sell', 0.01)
-#b.sendTrade('ppc_btc', 'buy', 0.1)
-#b.sendTrade('xpm_btc', 'buy', 0.1)
-b.main()
-b.showLog()
