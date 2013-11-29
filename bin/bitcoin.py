@@ -15,6 +15,7 @@ import sys
 import string
 import datetime
 import re
+import math
 
 def nv(n):
 	#return type(n)
@@ -209,7 +210,8 @@ class bitcoin:
 		amount = '%.8f' % float(amount)
 				
 		# method name and nonce go into the POST parameters
-		self.log(str(self.getInfo()))
+		gi1 = self.getInfo()
+		self.log(str(gi1))
 		self.getNonce()
 		self.params = {"method":"Trade",
 			  "nonce": self.getNonce(),
@@ -239,7 +241,23 @@ class bitcoin:
 		ticker = json.load(response)
 		
 		self.log(str(ticker))
-		self.log(str(self.getInfo()))
+		
+		gi2 = self.getInfo()
+		self.log(str(gi2))
+		cu = currencyPair[0]+currencyPair[1]+currencyPair[2]
+		
+		#print cu
+		#print 'bal1:'+str(gi1[cu])
+		#print 'bal2:'+str(gi2[cu])
+		diffbal = math.sqrt(math.pow(gi1[cu]-gi2[cu],2))
+		#print 'diffbal:'+str(diffbal)
+		#print 'amount:'+amount
+		adiff = diffbal-float(amount)
+		print 'adiff:'+str(adiff)
+		if 0 <= adiff and adiff <= 0.001:
+			print 'check: ' + str(diff)
+		else:
+			print 'balance diff: ' + str(adiff) + ' ' + str((adiff/float(amount)*100)) + '%'
 		
 		return ticker
 
@@ -293,23 +311,24 @@ class bitcoin:
 
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
+		factor = 1
 		dat = {
 			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
 			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LXZc3HdmDGmfhV4hMoxwtsg29jVozRSFCf']],
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LUT1MTSGaUcW9BCk1fYx3cBNLQBYbK8MGr']],
-			#
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX']],
+			#'ltc':[2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LXZc3HdmDGmfhV4hMoxwtsg29jVozRSFCf']],
+			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LUT1MTSGaUcW9BCk1fYx3cBNLQBYbK8MGr','LRoQJf154h1NL8b28wZJPYrS7RX6Za6T45']],
+			#		btce[btc]					BitcoinWalletAndroid							CS1					CS2				CS3									Localbitcoins
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
 			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
 			#'btc': [1],
 			
-			# todo: add the self.currencies below
-			'ftc':[0.1,[]],
-			'nvc':[0.1,[]],
-			'ppc':[0.1,[]],
-			'trc':[0.1,[]],
-			'nmc':[0.1,[]],
-			'xpm':[0.1,[]],
+			# todo: add the self.currencies below			
+			'ftc':[0.1 * factor,[]],
+			'nvc':[0.1 * factor,[]],
+			'ppc':[0.1 * factor,[]],
+			'trc':[0.1 * factor,[]],
+			'nmc':[0.1 * factor,[]],
+			'xpm':[0.1 * factor,[]],
 			'usd':[3,[]],
 		}
 		brokerBlockchains = {
