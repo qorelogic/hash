@@ -205,9 +205,11 @@ class bitcoin:
 		#	self.currencies[i]['basecurr'] = 'usd'
 			
 		e = self.getTicker(currencyPair[0]+currencyPair[1]+currencyPair[2])['ticker']
+		
+		amount = '%.8f' % float(amount)
 				
 		# method name and nonce go into the POST parameters
-		self.log(str(b.getInfo()))
+		self.log(str(self.getInfo()))
 		self.getNonce()
 		self.params = {"method":"Trade",
 			  "nonce": self.getNonce(),
@@ -237,7 +239,7 @@ class bitcoin:
 		ticker = json.load(response)
 		
 		self.log(str(ticker))
-		self.log(str(b.getInfo()))
+		self.log(str(self.getInfo()))
 		
 		return ticker
 
@@ -425,6 +427,9 @@ class bitcoin:
 			self.log('usdbalshoulda['+i+']:'+str(usdbalshould))
 			tusdbalshould  += usdbalshould 
 			
+			self.currencies[i]['pshould'] = pshould
+			self.currencies[i]['usdbalshould'] = usdbalshould
+			
 			#try:
 			if self.currencies[i]['bal'] > 0 or dat.has_key(i):
 				print i + ": \t",
@@ -440,19 +445,21 @@ class bitcoin:
 				self.log('usdbal['+i+']:'+str(self.currencies[i]['usdbal']))
 				self.log('usdbalshouldb['+i+']:'+str(usdbalshould))
 				if self.currencies[i]['usdbal'] > usdbalshould:
-					decrease = self.currencies[i]['usdbal'] - usdbalshould
+					self.currencies[i]['decrease'] = self.currencies[i]['usdbal'] - usdbalshould
+					self.currencies[i]['decrease_amount'] = self.currencies[i]['decrease'] / self.currencies[i]['xrate']
 					print  '\t-',
-					print '%.2f' % (decrease / self.currencies[i]['xrate']),
+					print string.zfill('%.2f' % (self.currencies[i]['decrease_amount']), 5),
 					print ' ' + str(i) + "\t[USD",
-					print '%.4f' % decrease,
+					print '%.4f' % self.currencies[i]['decrease'],
 					print ']'
 					#print  ""
 				if self.currencies[i]['usdbal'] <= usdbalshould:
-					increase = usdbalshould - self.currencies[i]['usdbal']
+					self.currencies[i]['increase'] = usdbalshould - self.currencies[i]['usdbal']
+					self.currencies[i]['increase_amount'] = self.currencies[i]['increase'] / self.currencies[i]['xrate']
 					print  '\t+',
-					print string.zfill('%.2f' % (increase / self.currencies[i]['xrate']), 5),
+					print string.zfill('%.2f' % (self.currencies[i]['increase_amount']), 5),
 					print ' ' + str(i) + "\t[USD",
-					print '%.4f' % increase,
+					print '%.4f' % self.currencies[i]['increase'],
 					print ']'
 					#print ""
 			else:
@@ -478,3 +485,38 @@ class bitcoin:
 		f = file('bitcoin.json','w')
 		f.write(j)
 		f.close()
+		
+	def rebalanceCurrencies(self):
+		
+		f = file('bitcoin.json','r')
+		j = f.read()
+		jo = json.loads(j)
+		print jo
+		joc = jo['currencies']
+		for i in joc:
+			print ''
+			print '---- '+i
+			print joc[i]
+			print joc[i]['pcent']
+			
+			try:
+				amount = joc[i]['increase_amount']
+				type = 'buy'
+				
+			except:
+				''
+				
+			try:
+				amount = joc[i]['decrease_amount']
+				type = 'sell'
+			except:
+				''
+			
+			try:				
+				ans = raw_input("self.sendTrade('"+i+"_"+joc[i]['basecurr']+"', '"+type+"', "+str(amount)+") ? (y/n): ")
+				if ans == 'y':
+					self.sendTrade(i+"_"+joc[i]['basecurr'], type, str(amount))					
+			except KeyError, e:
+				''
+		print jo['totalusd']
+		
