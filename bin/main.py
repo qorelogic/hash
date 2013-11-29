@@ -11,6 +11,8 @@ if __name__ == '__main__':
 			b.main()
 		if sys.argv[1] == 'rebalance':
 			b.rebalanceCurrencies()
+		if sys.argv[1] == 'liquidate':
+			b.liquidate()
 	except IndexError, e:
 		''
 b.showLog()

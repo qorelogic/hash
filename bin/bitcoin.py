@@ -538,4 +538,31 @@ class bitcoin:
 			except KeyError, e:
 				''
 		print jo['totalusd']
+	
+	def liquidate(self):
+		f = file('bitcoin.json','r')
+		j = f.read()
+		jo = json.loads(j)
+		print jo
+		joc = jo['currencies']
+		for i in joc:
+			print ''
+			print '---- '+i
+			print joc[i]
+			print joc[i]['bal']
+			
+			try:
+				amount = joc[i]['bal']
+				type = 'sell'
+			except:
+				''
+			
+			try:				
+				ans = raw_input("self.sendTrade('"+i+"_"+joc[i]['basecurr']+"', '"+type+"', "+str(amount)+") ? (y/n): ")
+				#if ans == 'y':
+				#	self.sendTrade(i+"_"+joc[i]['basecurr'], type, str(amount))					
+			except KeyError, e:
+				''
+		print jo['totalusd']
+		
 		
