@@ -254,8 +254,9 @@ class bitcoin:
 		#print 'amount:'+amount
 		adiff = diffbal-float(amount)
 		print 'adiff:'+str(adiff)
+		print str((adiff/float(amount)*100))
 		if 0 <= adiff and adiff <= 0.001:
-			print 'check: ' + str(diff)
+			print 'check: ' + str(adiff)
 		else:
 			print 'balance diff: ' + str(adiff) + ' ' + str((adiff/float(amount)*100)) + '%'
 		
@@ -311,13 +312,15 @@ class bitcoin:
 
 		# define portfolio weights
 		# register currency here and give it a portfolio weight
-		factor = 1
+		factor = 40
 		dat = {
 			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
 			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
 			#'ltc':[2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LXZc3HdmDGmfhV4hMoxwtsg29jVozRSFCf']],
 			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LUT1MTSGaUcW9BCk1fYx3cBNLQBYbK8MGr','LRoQJf154h1NL8b28wZJPYrS7RX6Za6T45']],
-			#		btce[btc]					BitcoinWalletAndroid							CS1					CS2				CS3									Localbitcoins
+			#		btce[btc]								BitcoinWalletAndroid							CS1						CS2								CS3									Localbitcoins													Localbitcoins
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
+			#		btce[btc]																		CS1						CS2								CS3									Localbitcoins													Localbitcoins
 			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
 			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
 			#'btc': [1],
@@ -356,6 +359,12 @@ class bitcoin:
 					'stub'
 				except TypeError:
 					self.currencies[i]['xsell'] = 1
+				try:
+					self.currencies[i]['xbuy'] = ticker['ticker']['buy']
+				except KeyError:
+					'stub'
+				except TypeError:
+					self.currencies[i]['xbuy'] = 1
 					
 				try:
 					self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
@@ -559,10 +568,42 @@ class bitcoin:
 			
 			try:				
 				ans = raw_input("self.sendTrade('"+i+"_"+joc[i]['basecurr']+"', '"+type+"', "+str(amount)+") ? (y/n): ")
-				#if ans == 'y':
-				#	self.sendTrade(i+"_"+joc[i]['basecurr'], type, str(amount))					
+				if ans == 'y':
+					self.sendTrade(i+"_"+joc[i]['basecurr'], type, str(amount))					
 			except KeyError, e:
 				''
 		print jo['totalusd']
 		
-		
+	def buy_btc(self):
+		f = file('bitcoin.json','r')
+		j = f.read()
+		jo = json.loads(j)
+		print jo
+		joc = jo['currencies']
+		try:
+			i = 'usd'
+			type ='buy'
+			pair = 'btc_usd'
+			amount = joc[i]['bal'] / joc['btc']['xbuy']
+			ans = raw_input("self.sendTrade('"+pair+"', '"+type+"', "+str(amount)+") ? (y/n): ")
+			if ans == 'y':
+				self.sendTrade(pair, type, str(amount))					
+		except KeyError, e:
+			print e	
+	
+	def buy_ltc(self):
+		f = file('bitcoin.json','r')
+		j = f.read()
+		jo = json.loads(j)
+		print jo
+		joc = jo['currencies']
+		try:
+			i = 'usd'
+			type ='buy'
+			pair = 'btc_usd'
+			amount = joc[i]['bal'] / joc['ltc']['xbuy']
+			ans = raw_input("self.sendTrade('"+pair+"', '"+type+"', "+str(amount)+") ? (y/n): ")
+			if ans == 'y':
+				self.sendTrade(pair, type, str(amount))					
+		except KeyError, e:
+			print e

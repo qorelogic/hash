@@ -13,6 +13,10 @@ if __name__ == '__main__':
 			b.rebalanceCurrencies()
 		if sys.argv[1] == 'liquidate':
 			b.liquidate()
+		if sys.argv[1] == 'buybtc':
+			b.buy_btc()
+		if sys.argv[1] == 'buyltc':
+			b.buy_ltc()
 	except IndexError, e:
 		''
 b.showLog()
