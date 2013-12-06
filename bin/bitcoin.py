@@ -31,6 +31,46 @@ def nd(n,dec):
 	#v = "{123}."+str(dec)+"f".format(float(n))
 	return float(v)
 	
+class config:
+	
+	factor = None
+	dat = None
+	brokerBlockchains = None
+	tdat = None
+	
+	def __init__(self):
+		# define portfolio weights
+		# register currency here and give it a portfolio weight
+		self.factor = 20
+		self.dat = {
+			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
+			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
+			#'ltc':[2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LXZc3HdmDGmfhV4hMoxwtsg29jVozRSFCf']],
+			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LUT1MTSGaUcW9BCk1fYx3cBNLQBYbK8MGr','LRoQJf154h1NL8b28wZJPYrS7RX6Za6T45']],
+			#		btce[btc]								BitcoinWalletAndroid							CS1						CS2								CS3									Localbitcoins													Localbitcoins
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
+			#		btce[btc]																		CS1						CS2								CS3									Localbitcoins													Localbitcoins
+			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
+			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
+			#'btc': [1],
+			
+			# todo: add the self.currencies below			
+			'ftc':[0.1 * self.factor,[]],
+			'nvc':[0.1 * self.factor,[]],
+			'ppc':[0.1 * self.factor,[]],
+			'trc':[0.1 * self.factor,[]],
+			'nmc':[0.1 * self.factor,[]],
+			'xpm':[0.1 * self.factor,[]],
+			'usd':[0,[]],
+		}
+		self.brokerBlockchains = {
+			'btc':[self.dat['btc'][1][0]],
+		}
+		self.tdat = 0
+		for i in self.dat:
+			self.tdat += self.dat[i][0]
+	
+
 class bitcoin:
 	
 	def __init__(self, api_key, api_secret):
@@ -310,37 +350,6 @@ class bitcoin:
 		tusdbal = 0
 		tusdbalshould  = 0 
 
-		# define portfolio weights
-		# register currency here and give it a portfolio weight
-		factor = 40
-		dat = {
-			#'btc': [1,['1AodK7vXUxBL7dyiwZov7QmpytuASi9Ah6']],
-			#'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x']],
-			#'ltc':[2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LXZc3HdmDGmfhV4hMoxwtsg29jVozRSFCf']],
-			'ltc': [2,['Lc9ajLEfBUsaLcZayJQao9KgRiBBvdy79x','La9UReUrxbwDEJkvEJjGNtQdsya838QEWu','LaxQqqgzTVxQYT8yATCzGmvLGjeUodzEPo','Lc4AcHG9PKeRjST8cyMvqHYwFVhQspa6hB','LNrDMaeEyt4tksEsjuwhPc32Tma68cWEWn','LUT1MTSGaUcW9BCk1fYx3cBNLQBYbK8MGr','LRoQJf154h1NL8b28wZJPYrS7RX6Za6T45']],
-			#		btce[btc]								BitcoinWalletAndroid							CS1						CS2								CS3									Localbitcoins													Localbitcoins
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
-			#		btce[btc]																		CS1						CS2								CS3									Localbitcoins													Localbitcoins
-			'btc': [1,['19ANGDaYUTcb7zokc2cXd3espshu9ZfczC','1HKWHFLuv8UG1s2b8EsNXP935yAB8EH9Wg','1BripERdYEdjS4YRWvWSrrf7Ek925qXAw1','1LDevvnEPd4BHadisV61kcaAKP7FGHKYGV','1PQueM6GjYxDmQHFPug5ckQJbDjA99XjwC','1PYBcQ6qY6Z4VuSJbHDcnHiiihfrNUzs3x','1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr','1HfdrFqJXZJhX14t3QQDw9Jkq2k1QZbSHX','1KtSQmQLfDpSGuxMXtXkiLd3bKQXVMLB31']],
-			# 1JwfkBxXExpJBpCP76pDqTcfPSMnG4S6Qr, 5K79S8n1EcETWedLBFd1MXp9KobT7SR5oTxBtzFF6994LJCfJX7
-			#'btc': [1],
-			
-			# todo: add the self.currencies below			
-			'ftc':[0.1 * factor,[]],
-			'nvc':[0.1 * factor,[]],
-			'ppc':[0.1 * factor,[]],
-			'trc':[0.1 * factor,[]],
-			'nmc':[0.1 * factor,[]],
-			'xpm':[0.1 * factor,[]],
-			'usd':[3,[]],
-		}
-		brokerBlockchains = {
-			'btc':[dat['btc'][1][0]],
-		}
-		tdat = 0
-		for i in dat:
-			tdat += dat[i][0]
-
 		# get balance data
 		print ""
 		print "= Blockchains & Brokers ========================================================="
@@ -349,7 +358,7 @@ class bitcoin:
 		for i in responseBTCe:
 			self.currencies[i] = {}
 			self.currencies[i]['xsell'] = 0
-			if responseBTCe[i] > 0 or dat.has_key(i):
+			if responseBTCe[i] > 0 or config().dat.has_key(i):
 				print i
 				
 				ticker = self.getTicker(i)
@@ -384,21 +393,21 @@ class bitcoin:
 			
 			# litecoin balance
 			if i == 'ltc':
-				for j in range(0, len(dat[i][1])):
-					bal = self.getBlockChains("litecoinscout.com", "/address/"+dat[i][1][j], '(Balance: (.*?) LTC)')
+				for j in range(0, len(config().dat[i][1])):
+					bal = self.getBlockChains("litecoinscout.com", "/address/"+config().dat[i][1][j], '(Balance: (.*?) LTC)')
 					self.currencies[i]['bal'] += bal
 
 			# bitcoin balance
 			try:
-				if i == 'btc' and type(dat[i][1]):
-					for j in range(0, len(dat[i][1])):
-						#if dat[i][1][j] != brokerBlockchains[i][0]:
+				if i == 'btc' and type(config().dat[i][1]):
+					for j in range(0, len(config().dat[i][1])):
+						#if config().dat[i][1][j] != config().brokerBlockchains[i][0]:
 						try:
-							bal = self.getBlockChains("blockchain.info", "/address/"+dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
-							# if brokerBlockcians has no index dat[i][1][j], it throws a ValueError
-							brokerBlockchains[i].index(dat[i][1][j])
+							bal = self.getBlockChains("blockchain.info", "/address/"+config().dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
+							# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
+							brokerBlockchains[i].index(config().dat[i][1][j])
 						except ValueError, e:
-							# add to balance if dat[i][1][j] is not registered in brokerBlockchains
+							# add to balance if config().dat[i][1][j] is not registered in brokerBlockchains
 							self.currencies[i]['bal'] += bal
 			except:
 				#print e
@@ -443,7 +452,7 @@ class bitcoin:
 			pshould = 0
 			usdbalshould  = 0
 			try:		
-				pshould = nv(float(dat[i][0]) / tdat * 100)
+				pshould = nv(float(config().dat[i][0]) / config().tdat * 100)
 			except KeyError, e:
 				''
 			try:
@@ -459,7 +468,7 @@ class bitcoin:
 			self.currencies[i]['usdbalshould'] = usdbalshould
 			
 			#try:
-			if self.currencies[i]['bal'] > 0 or dat.has_key(i):
+			if self.currencies[i]['bal'] > 0 or config().dat.has_key(i):
 				print i + ": \t",
 				print '%.8f' % self.currencies[i]['bal'],
 				print " \t",
