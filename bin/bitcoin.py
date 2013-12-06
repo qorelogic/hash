@@ -17,6 +17,8 @@ import datetime
 import re
 import math
 
+from config import *
+
 def nv(n):
 	#return type(n)
 	#if n != '':
