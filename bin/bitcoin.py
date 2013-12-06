@@ -16,6 +16,19 @@ import string
 import datetime
 import re
 import math
+import sys
+
+try:
+	import pygtk  
+	pygtk.require("2.0")  
+except:  
+	pass  
+try:  
+	import gtk  
+	import gtk.glade  
+except:  
+	print("GTK Not Availible")
+	sys.exit(1)
 
 def nv(n):
 	#return type(n)
@@ -32,6 +45,9 @@ def nd(n,dec):
 	return float(v)
 	
 class bitcoin:
+	
+	#wTree = None
+	builder = None
 	
 	def __init__(self, api_key, api_secret):
 		# Replace these with your own API key data
@@ -53,6 +69,39 @@ class bitcoin:
 		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm']
 		
 		self.currencies = {}
+		
+		# init gtk
+		filename = "./bin/main.glade"
+		self.builder = gtk.Builder()
+		self.builder.add_from_file(filename)
+		self.builder.connect_signals(self)
+		
+		self.builder.get_object("window1").show_all()
+	
+	# gtk events
+	def quit(self):
+		print 'quit'
+		
+	def on_buttonRefresh_clicked(self, widget):
+		print "Refreshing.."
+		mainBuffer = self.main()
+		log = self.showLog()
+		
+		# set the textviews
+		tv1 = self.builder.get_object("textview2")
+		b = gtk.TextBuffer(None)
+		b.set_text(mainBuffer)
+		tv1.set_buffer(b)
+		
+		# set the textviews
+		#tv1 = self.builder.get_object("textview1")
+		#b = gtk.TextBuffer(None)
+		#b.set_text(log)
+		#tv1.set_buffer(b)
+		
+	def on_window1_destroy(self, widget):
+		print "Exiting.."
+	# end gtk events
 		
 	def getNonce(self):
 		self.log('getNonce')
@@ -277,6 +326,7 @@ class bitcoin:
 		print "= LOGS =========================================================================="
 		print ""
 		print self.logBuffer
+		return self.logBuffer
 
 	def main(self):
 		self.log('main')
@@ -284,6 +334,8 @@ class bitcoin:
 		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
 		H.update(self.params)
 		self.sign = H.hexdigest()
+		
+		buffer = ""
 		
 		self.getInfo()
 		self.getNonce()
@@ -299,12 +351,12 @@ class bitcoin:
 
 		#try:
 		#res = json.load(response)
-		#print res
+		#buffer +=  res+'\n'
 		#responseBTCe = res['return']['funds']
 		responseBTCe = self.getInfo()
 		#except:
-		#	print 'The btc-e API key pairs are not valid.'
-		#	print 'You may edit api key here: https://btc-e.com/profile#api_keys'
+		#	buffer +=  'The btc-e API key pairs are not valid.'+'\n'
+		#	buffer +=  'You may edit api key here: https://btc-e.com/profile#api_keys'+'\n'
 		#	sys.exit()
 
 		tusdbal = 0
@@ -342,15 +394,15 @@ class bitcoin:
 			tdat += dat[i][0]
 
 		# get balance data
-		print ""
-		print "= Blockchains & Brokers ========================================================="
-		print ""
+		buffer +=  ""+'\n'
+		buffer +=  "= Blockchains & Brokers ========================================================="+'\n'
+		buffer +=  ""+'\n'
 		baseTicker = self.getTicker('btc')
 		for i in responseBTCe:
 			self.currencies[i] = {}
 			self.currencies[i]['xsell'] = 0
 			if responseBTCe[i] > 0 or dat.has_key(i):
-				print i
+				buffer +=  str(i)+'\n'
 				
 				ticker = self.getTicker(i)
 				try:
@@ -374,9 +426,9 @@ class bitcoin:
 			# balance from btc
 			bal = responseBTCe[i]
 			if bal > 0:
-				print '\t btce['+i+'] \t',
-				print '%.8f' % nd(bal,8)
-				print '\t---'
+				buffer +=  '\t btce['+str(i)+'] \t'
+				buffer +=  '%.8f' % nd(bal,8)
+				buffer +=  '\t---'+'\n'
 				# log the broker(btce) balance to file, save the balance for future reference
 				# do not trust that the broker can record your actual balance.
 				self.logToFile(i, bal)
@@ -401,7 +453,7 @@ class bitcoin:
 							# add to balance if dat[i][1][j] is not registered in brokerBlockchains
 							self.currencies[i]['bal'] += bal
 			except:
-				#print e
+				#buffer +=  e+'\n'
 				''
 			
 			try:
@@ -419,14 +471,13 @@ class bitcoin:
 			
 			self.currencies[i]['usdbal'] = nv(self.currencies[i]['bal'] * self.currencies[i]['xrate'])
 			tusdbal += nv(self.currencies[i]['usdbal'])
-			
 				
 		# header
-		print ""
-		print ""
-		print "= Accounts ======================================================================"
-		print ""
-		print "Coin \tBAL \t\tUSDBAL \t\tPercent \tSuggested % \tSell"
+		buffer +=  ""+'\n'
+		buffer +=  ""+'\n'
+		buffer +=  "= Accounts ======================================================================"+'\n'
+		buffer +=  ""+'\n'
+		buffer +=  "Coin \tBAL \t\tUSDBAL \t\tPercent \tSuggested % \tSell"+'\n'
 
 		#body
 		for i in self.currencies:
@@ -460,49 +511,52 @@ class bitcoin:
 			
 			#try:
 			if self.currencies[i]['bal'] > 0 or dat.has_key(i):
-				print i + ": \t",
-				print '%.8f' % self.currencies[i]['bal'],
-				print " \t",
-				print '%.8f' % self.currencies[i]['usdbal'],
-				print " \t",
-				print '%.3f' % self.currencies[i]['pcent'],
-				print "% \t",
-				print '%.3f' % pshould,
-				print "% \t",
-				print '%.8f' % self.currencies[i]['xrate'],
+				buffer +=  i + ": \t"
+				buffer +=  '%.8f' % self.currencies[i]['bal']
+				buffer +=  " \t"
+				buffer +=  '%.8f' % self.currencies[i]['usdbal']
+				buffer +=  " \t"
+				buffer +=  '%.3f' % self.currencies[i]['pcent']
+				buffer +=  "% \t"
+				buffer +=  '%.3f' % pshould
+				buffer +=  "% \t"
+				buffer +=  '%.8f' % self.currencies[i]['xrate']
 				self.log('usdbal['+i+']:'+str(self.currencies[i]['usdbal']))
 				self.log('usdbalshouldb['+i+']:'+str(usdbalshould))
 				if self.currencies[i]['usdbal'] > usdbalshould:
 					self.currencies[i]['decrease'] = self.currencies[i]['usdbal'] - usdbalshould
 					self.currencies[i]['decrease_amount'] = self.currencies[i]['decrease'] / self.currencies[i]['xrate']
-					print  '\t-',
-					print string.zfill('%.2f' % (self.currencies[i]['decrease_amount']), 5),
-					print ' ' + str(i) + "\t[USD",
-					print '%.4f' % self.currencies[i]['decrease'],
-					print ']'
-					#print  ""
+					buffer +=   '\t-'
+					buffer +=  string.zfill('%.2f' % (self.currencies[i]['decrease_amount']), 5)
+					buffer +=  ' ' + str(i) + "\t[USD"
+					buffer +=  '%.4f' % self.currencies[i]['decrease']
+					buffer +=  ']'+'\n'
+					#buffer +=   ""+'\n'
 				if self.currencies[i]['usdbal'] <= usdbalshould:
 					self.currencies[i]['increase'] = usdbalshould - self.currencies[i]['usdbal']
 					self.currencies[i]['increase_amount'] = self.currencies[i]['increase'] / self.currencies[i]['xrate']
-					print  '\t+',
-					print string.zfill('%.2f' % (self.currencies[i]['increase_amount']), 5),
-					print ' ' + str(i) + "\t[USD",
-					print '%.4f' % self.currencies[i]['increase'],
-					print ']'
-					#print ""
+					buffer +=   '\t+'
+					buffer +=  string.zfill('%.2f' % (self.currencies[i]['increase_amount']), 5)
+					buffer +=  ' ' + str(i) + "\t[USD"
+					buffer +=  '%.4f' % self.currencies[i]['increase']
+					buffer +=  ']'+'\n'
+					#buffer +=  ""+'\n'
 			else:
 				''
 			#except Error, e:
-			#	print e
+			#	buffer +=  e+'\n'
 
 		#footer
-		print 'Total USD: ' + str(tusdbal)
+		buffer +=  'Total USD: ' + str(tusdbal) + '\n'
+		
+		print buffer
+		return buffer
 		
 		# read
 		#f = file('bitcoin.json','r')
 		#j = f.read()
 		#ptbal = json.load(j)
-		#print ptbal
+		#buffer +=  ptbal + '\n'
 		
 		
 		w = {'totalusd': tusdbal, 'currencies':self.currencies}

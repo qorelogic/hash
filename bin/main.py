@@ -17,6 +17,8 @@ if __name__ == '__main__':
 			b.buy_btc()
 		if sys.argv[1] == 'buyltc':
 			b.buy_ltc()
+		if sys.argv[1] == 'gtk':
+			gtk.main()
 	except IndexError, e:
 		''
 b.showLog()
