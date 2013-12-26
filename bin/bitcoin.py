@@ -64,16 +64,23 @@ class bitcoin:
 		#print mks
 		#self.nonce = int(time.time())*1000000 + mks
 		#self.nonce = mks * 10000
-		f = file('bitcoin.dat','r')
+		try:
+			f = file('bitcoin.dat','r')
+		except:
+			''
 		try:
 			nonce = f.read()
 			f.close()
 			nonce = int(re.sub(re.compile(r'.*?nonce\:(.*?)', re.S),'\\1',nonce))
 			nonce += 1
 			#print nonce
+		except UnboundLocalError, e:
+			nonce = 1
 		except IOError, e:
 			''
-		f = file('bitcoin.dat','w')
+		except:
+			''
+		f = file('bitcoin.dat','w')		
 		f.write('nonce:'+str(nonce)+"\n")
 		f.close()
 		self.nonce = nonce
@@ -99,7 +106,11 @@ class bitcoin:
 		conn = httplib.HTTPSConnection(domain)
 		conn.request("POST", url, self.params, headers)
 		response = conn.getresponse()
-		res = json.load(response)
+		try:
+			res = json.load(response)
+		except:
+			print 'server flooded'
+			sys.exit()
 		try:
 			self.info = res['return']['funds']
 		except KeyError, e:
@@ -364,16 +375,34 @@ class bitcoin:
 				if i == 'btc' and type(config().dat[i][1]):
 					for j in range(0, len(config().dat[i][1])):
 						#if config().dat[i][1][j] != config().brokerBlockchains[i][0]:
-						try:
-							bal = self.getBlockChains("blockchain.info", "/address/"+config().dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
-							# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
-							brokerBlockchains[i].index(config().dat[i][1][j])
+						#try:
+						# two modes
+						# - '<blockchain address>'
+						# - ['description',<amount(float)>]
+						address = config().dat[i][1][j]
+						self.log('adress:'+str(address))
+						if type(address) == type(""):
+							bal = self.getBlockChains("blockchain.info", "/address/"+address, '(Balance.*?([\d\.]+) BTC)')
+							
+						if type(address) == type([]):
+							self.log('adress bal:'+str(address[1]))
+							self.log('adress bal:'+str(type(address[1])))
+							bal = address[1]
+							print '	'+address[0] + '	' + str(address[1])
+						# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
+						#self.brokerBlockchains[i].index(config().dat[i][1][j])
+						self.currencies[i]['bal'] += bal
+						"""
 						except ValueError, e:
 							# add to balance if config().dat[i][1][j] is not registered in brokerBlockchains
 							self.currencies[i]['bal'] += bal
-			except:
-				#print e
-				''
+							print e
+						except NameError, e:
+							print e
+							''
+						"""
+			except TypeError, e:
+				print e
 			
 			try:
 				if type(self.btcBaseCurrencies.index(i)) == type(1):
@@ -493,23 +522,32 @@ class bitcoin:
 		print jo
 		joc = jo['currencies']
 		for i in joc:
+			preinfo = self.getInfo()
 			print ''
 			print '---- '+i
 			print joc[i]
 			print joc[i]['pcent']
+			print 'pre-balance:'+str(joc[i]['bal'])
 			
 			try:
 				amount = joc[i]['increase_amount']
 				type = 'buy'
-				
+				#postBal = joc[i]['bal'] + amount
+				postBal = preinfo[i] + amount
 			except:
 				''
 				
 			try:
 				amount = joc[i]['decrease_amount']
 				type = 'sell'
+				#postBalShould = joc[i]['bal'] - amount
+				postBalShould = preinfo[i] - amount
 			except:
 				''
+			
+			print 'post-balance-should:'+str(postBalShould)
+			
+			
 			
 			try:				
 				ans = raw_input("self.sendTrade('"+i+"_"+joc[i]['basecurr']+"', '"+type+"', "+str(amount)+") ? (y/n): ")
@@ -517,7 +555,34 @@ class bitcoin:
 					self.sendTrade(i+"_"+joc[i]['basecurr'], type, str(amount))					
 			except KeyError, e:
 				''
+			# checks
+			info = self.getInfo()
+			
+			# check currency balance
+			currBal = info[i]
+			print 'currBal:'+str(currBal)
+			diffBal2BalShould = currBal - postBalShould
+			print 'diffBal2BalShould:'+str(diffBal2BalShould)
+			if diffBal2BalShould < (10 * math.pow(10,-9)):
+				print i + ' checked:: good, difference is low:  '+str(diffBal2BalShould)
+			else:
+				print i + ' checked:: bad, major difference: '+str(diffBal2BalShould)
+				
+			# 
+			preBTCBal = preinfo['btc']
+			currBTC = info['btc']
+			print 'preBTCBal:'+str(preBTCBal)
+			print 'currBTC:'+str(currBTC)
+			btcAmount = amount * joc[i]['xsell']
+			print 'btcAmount:'+str(btcAmount)
+			btcBalShould = btcAmount + preBTCBal
+			print 'btcBalShould:'+str(btcBalShould)	
+			commission = (btcBalShould / currBTC * 100) - 100
+			print 'commission:'+str(commission)
+			
+			
 		print jo['totalusd']
+	
 	
 	def liquidate(self):
 		f = file('bitcoin.json','r')
@@ -555,7 +620,7 @@ class bitcoin:
 			i = 'usd'
 			type ='buy'
 			pair = 'btc_usd'
-			amount = joc[i]['bal'] / joc['btc']['xbuy']
+			amount = joc[i]['bal'] / joc['btc']['xbuy'] - 0.1
 			ans = raw_input("self.sendTrade('"+pair+"', '"+type+"', "+str(amount)+") ? (y/n): ")
 			if ans == 'y':
 				self.sendTrade(pair, type, str(amount))					
@@ -578,3 +643,94 @@ class bitcoin:
 				self.sendTrade(pair, type, str(amount))					
 		except KeyError, e:
 			print e
+			
+	def sweep(self):
+		#responseBTCe = self.getInfo()
+		responseBTCe = {'btc':0}
+		print responseBTCe
+		
+		tusdbal = 0
+		tusdbalshould  = 0 
+
+		# get balance data
+		baseTicker = self.getTicker('btc')
+		for i in responseBTCe:
+			self.currencies[i] = {}
+			self.currencies[i]['xsell'] = 0
+			if responseBTCe[i] > 0 or config().dat.has_key(i):
+				print i
+				
+				ticker = self.getTicker(i)
+				try:
+					self.currencies[i]['xsell'] = ticker['ticker']['sell']
+				except KeyError:
+					'stub'
+				except TypeError:
+					self.currencies[i]['xsell'] = 1
+				try:
+					self.currencies[i]['xbuy'] = ticker['ticker']['buy']
+				except KeyError:
+					'stub'
+				except TypeError:
+					self.currencies[i]['xbuy'] = 1
+					
+				try:
+					self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
+				except KeyError:
+					'stub'
+			
+			# balance from btc
+			bal = responseBTCe[i]
+			if bal > 0:
+				print '\t btce['+i+'] \t',
+				print '%.8f' % nd(bal,8)
+				print '\t---'
+				# log the broker(btce) balance to file, save the balance for future reference
+				# do not trust that the broker can record your actual balance.
+				self.logToFile(i, bal)
+			self.currencies[i]['bal'] = bal
+			
+			# litecoin balance
+			if i == 'ltc':
+				for j in range(0, len(config().dat[i][1])):
+					bal = self.getBlockChains("litecoinscout.com", "/address/"+config().dat[i][1][j], '(Balance: (.*?) LTC)')
+					self.currencies[i]['bal'] += bal
+
+			# bitcoin balance
+			try:
+				if i == 'btc' and type(config().dat[i][1]):
+					
+					filen = './bin/bitaddress.txt'
+					#f = open(filen,'r')
+					#print dir(f)
+					#print f.read()
+					#r = f.readlines()
+					#for j in r:
+					#	print j
+						
+					import csv
+					with open(filen, 'rb') as csvfile:
+						fn = csv.reader(csvfile, delimiter=',', quotechar='"')
+						for row in fn:
+							#print ', '.join(row)
+							#print row[1]
+							bal = self.getBlockChains("blockchain.info", "/address/"+row[1], '(Balance.*?([\d\.]+) BTC)')
+							self.currencies[i]['bal'] += bal
+					
+					for j in range(0, len(config().dat[i][1])):
+						#if config().dat[i][1][j] != config().brokerBlockchains[i][0]:
+						try:
+							bal = self.getBlockChains("blockchain.info", "/address/"+config().dat[i][1][j], '(Balance.*?([\d\.]+) BTC)')
+							# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
+							#self.brokerBlockchains[i].index(config().dat[i][1][j])
+							self.currencies[i]['bal'] += bal
+							#print 'bal:'+str(self.currencies[i]['bal'])
+						except ValueError, e:
+							# add to balance if config().dat[i][1][j] is not registered in brokerBlockchains
+							self.currencies[i]['bal'] += bal
+							print e
+						except NameError, e:
+							print e
+							''
+			except:
+				''

@@ -17,6 +17,21 @@ if __name__ == '__main__':
 			b.buy_btc()
 		if sys.argv[1] == 'buyltc':
 			b.buy_ltc()
+		if sys.argv[1] == 'getinfo':
+			info = b.getInfo()
+			print info['btc']
+			print info['ppc']
+		if sys.argv[1] == 'lb':
+			import localbitcoinsapi as lb
+			from localbitcoinsapi.LocalBitcoins.lb_api import *
+			#print dir(LocalBitcoins)
+			#print dir(lb.LocalBitcoins.lb_api.LocalBitcoinsAPI)
+			#lb1 = lb.LocalBitcoins()
+			#print type(lb.LocalBitcoins.lb_api.LocalBitcoinsAPI)
+			lb = LocalBitcoinsAPI('adb23a01d6b3a53291a3','41a441024a9535913741c709e993521164945432')
+		if sys.argv[1] == 'sweep':
+			b.sweep()
+		
 	except IndexError, e:
 		''
 b.showLog()
