@@ -3,7 +3,8 @@
 from bitcoin import *
 from localbitcoinsapi.LocalBitcoins.lb_api import *
 
-b = bitcoin('JPDOOFP6-HVRFC67N-QZH4SLY3-NAKISDKR-31IYB900', '11643a3fbdc0561e8c45fa2456338c2e46ebafda94d7fe8066429ace5f862046')
+b = btce('OMMAJZSC-1EALBXVT-9M5W5HQL-LGKATXK9-K3IRAZ8J', 'ea826635cbcdce27cdea458e3fbb027040f9b8994421b494b901fcc28af1554a')
+c = cryptsy('fe329b4733fc1ccc7dfa900e1cbd7c2ca224bbaa','6730fa20414b90e9f0ce11bdbb3aba81824388d39a6f9e66c9bf2036e1fcbb7f29c39cca7c840c5d')
 
 if __name__ == '__main__':
 	try:
@@ -31,6 +32,33 @@ if __name__ == '__main__':
 			lb = LocalBitcoinsAPI('adb23a01d6b3a53291a3','41a441024a9535913741c709e993521164945432')
 		if sys.argv[1] == 'sweep':
 			b.sweep()
+		if sys.argv[1] == 'check':
+			#b.check()
+			#print b.getInfo()			
+			
+			from lib.PyCryptsy.PyCryptsy import *
+
+			api=PyCryptsy(c.api_key, c.api_secret)
+
+			# currencies to trade
+			src="DOGE"
+			dest="BTC"
+
+			# trade multiplier (set to 1 to trade at lowest buy price)
+			multiplier=1.01
+
+			# get target price
+			target=api.GetBuyPrice(src, dest)*multiplier
+
+			# get available balance
+			avail=api.GetAvailableBalance(src)
+			print avail
+
+			# trade 10% of available balance
+			#print api.CreateSellOrder(src, dest, avail/10, target)
+			
+			#c.check()			
+			#print c.getInfo()
 		
 	except IndexError, e:
 		''

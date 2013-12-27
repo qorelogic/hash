@@ -32,13 +32,12 @@ def nd(n,dec):
 	v = "%.8f" % float(n)
 	#v = "{123}."+str(dec)+"f".format(float(n))
 	return float(v)
-	
-class bitcoin:
-	
+
+class broker(object):
 	def __init__(self, api_key, api_secret):
 		# Replace these with your own API key data
-		self.BTC_api_key = api_key
-		self.BTC_api_secret = api_secret
+		self.api_key = api_key
+		self.api_secret = api_secret
 		
 		self.logBuffer = ""
 		
@@ -48,13 +47,26 @@ class bitcoin:
 		self.params = urllib.urlencode(self.params)
 
 		# Hash the params string to produce the Sign header value
-		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H = hmac.new(self.api_secret, digestmod=hashlib.sha512)
 		H.update(self.params)
 		self.sign = H.hexdigest()
 		
 		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm']
 		
 		self.currencies = {}
+		
+		# check variables
+		try:
+			print self.domain
+		except:
+			print 'self.domain is not set'
+			sys.exit()
+			
+		try:
+			print self.url
+		except:
+			print 'self.url is not set'
+			sys.exit()
 		
 	def getNonce(self):
 		self.log('getNonce')
@@ -85,46 +97,86 @@ class bitcoin:
 		f.close()
 		self.nonce = nonce
 		return self.nonce
+	
+	def check(self):
+		print self.api_key
+	
+	def log(self, str):
+		self.logBuffer += str+"\n"
 		
+	# simple log balance to file
+	def logToFile(self, currency, balance):
+		f = open('bitcoin.log', 'a')
+		f.write(time.ctime()+','+str(time.time())+','+currency+','+str(balance)+"\n")
+		f.close()
+		
+		
+	def showLog(self):
+		print ""
+		print "= LOGS =========================================================================="
+		print ""
+		print self.logBuffer
+	
 	def getInfo(self):
-		self.log('getInfo')
+		self.log(self.method_getInfo)
 		# todo: below lines repeated above, remove code replication
 		# method name and nonce go into the POST parameters
-		self.params = {"method":"getInfo",
+		self.params = {"method": self.method_getInfo,
 			  "nonce": self.getNonce()}
 		self.params = urllib.urlencode(self.params)
+		print self.params
 
 		# Hash the params string to produce the Sign header value
-		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H = hmac.new(self.api_secret, digestmod=hashlib.sha512)
 		H.update(self.params)
 		self.sign = H.hexdigest()
 		headers = {"Content-type": "application/x-www-form-urlencoded",
-				   "Key":self.BTC_api_key,
-				   "Sign":self.sign}
-		domain = "btc-e.com"
-		url = 'https://'+domain+"/tapi"
-		conn = httplib.HTTPSConnection(domain)
-		conn.request("POST", url, self.params, headers)
+				   "key":self.api_key,
+				   "sign":self.sign}
+		print headers
+			
+		conn = httplib.HTTPSConnection(self.domain)
+		conn.request("POST", self.url, self.params, headers)
 		response = conn.getresponse()
-		try:
-			res = json.load(response)
-		except:
-			print 'server flooded'
-			sys.exit()
+		print response
+		#try:
+		res = json.load(response)
+		#except:
+		#	print 'server flooded'
+		#	sys.exit()
+		print res
 		try:
 			self.info = res['return']['funds']
 		except KeyError, e:
 			err = res['error']
 			if err == 'invalid api key':
 				print 'Your API key is invalid, please generate a new API key from your userpanel at http://btc-e.com under \'API keys\'.'
-				print 'Update the variable: self.BTC_api_key with the new key'
-				print 'Update the variable: self.BTC_api_secret with the new secret'
+				print 'Update the variable: self.api_key with the new key'
+				print 'Update the variable: self.api_secret with the new secret'
 			else:
 				print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'
 			
-			sys.exit()
+		#	sys.exit()
 		return self.info
+
+class cryptsy(broker):
+	def __init__(self, api_key, api_secret):
+		self.domain = "cryptsy.com"
+		self.url = 'https://'+self.domain+"/api"
 		
+		self.method_getInfo = 'getinfo'
+		super(cryptsy, self).__init__(api_key, api_secret)
+
+class btce(broker):
+	
+	def __init__(self, api_key, api_secret):
+		self.domain = "btc-e.com"
+		self.url = 'https://'+self.domain+"/tapi"
+		
+		self.method_getInfo = 'getInfo'
+		super(btce, self).__init__(api_key, api_secret)
+
+	
 	def getBalance(self, curr):
 		self.log('getBlanace')
 		self.getNonce()
@@ -169,7 +221,7 @@ class bitcoin:
 			
 		self.getNonce()
 		headers = {"Content-type": "application/x-www-form-urlencoded",
-				   "Key":self.BTC_api_key,
+				   "Key":self.api_key,
 				   "Sign":self.sign}
 		domain = "btc-e.com"
 		
@@ -236,11 +288,11 @@ class bitcoin:
 		self.params = urllib.urlencode(self.params)
 		
 		# Hash the params string to produce the Sign header value
-		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H = hmac.new(self.api_secret, digestmod=hashlib.sha512)
 		H.update(self.params)
 		self.sign = H.hexdigest()
 		headers = {"Content-type": "application/x-www-form-urlencoded",
-				   "Key":self.BTC_api_key,
+				   "Key":self.api_key,
 				   "Sign":self.sign}
 		domain = "btc-e.com"
 		#url = 'https://'+domain+"/api/2/"+str(i)+"_"+self.currencies[i]['basecurr']+"/ticker"
@@ -275,26 +327,10 @@ class bitcoin:
 		
 		return ticker
 
-	def log(self, str):
-		self.logBuffer += str+"\n"
-		
-	# simple log balance to file
-	def logToFile(self, currency, balance):
-		f = open('bitcoin.log', 'a')
-		f.write(time.ctime()+','+str(time.time())+','+currency+','+str(balance)+"\n")
-		f.close()
-		
-		
-	def showLog(self):
-		print ""
-		print "= LOGS =========================================================================="
-		print ""
-		print self.logBuffer
-
 	def main(self):
 		self.log('main')
 		# Hash the params string to produce the Sign header value
-		H = hmac.new(self.BTC_api_secret, digestmod=hashlib.sha512)
+		H = hmac.new(self.api_secret, digestmod=hashlib.sha512)
 		H.update(self.params)
 		self.sign = H.hexdigest()
 		
@@ -302,7 +338,7 @@ class bitcoin:
 		self.getNonce()
 
 		#headers = {"Content-type": "application/x-www-form-urlencoded",
-		#		   "Key":self.BTC_api_key,
+		#		   "Key":self.api_key,
 		#		   "Sign":self.sign}
 		#conn = httplib.HTTPSConnection("btc-e.com")
 		#conn.request("POST", "/tapi", self.params, headers)
