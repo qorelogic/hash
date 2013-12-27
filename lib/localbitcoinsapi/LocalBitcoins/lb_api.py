@@ -1,0 +1,423 @@
+'''
+Created on 10 Jul 2013
+
+@author: jamie@botsofbitcoin.com
+'''
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+
+""" 
+Copyright (c) 2013, LocalBitcoins Oy
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the LocalBitcoins Oy nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL LOCALBITCOINS OY BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+
+import requests
+import json
+import re
+
+import logging
+logging.basicConfig(format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
+
+
+try:
+    from bs4 import BeautifulSoup
+except:
+    logging.warning("BeautifulSoup is required for editing ads using the unofficial HTML API")
+
+hdr = {'Referer' : 'https://localbitcoins.com/'}
+
+class LocalBitcoinsAPI():
+    def __init__(self, client_id=None, client_secret=None, username=None, password=None):
+        ''' Set up your API Access Information
+            https://www.okpay.com/en/developers/interfaces/setup.html '''
+        if client_id == None:
+            self.client_id = "your details here"
+        else:
+            self.client_id = client_id
+        if client_secret == None:
+            self.client_secret = "your details here"
+        else:
+            self.client_secret = client_secret
+        if username == None:
+            self.username = "your details here"
+        else:
+            self.username = username
+        if password == None:
+            self.password = "your details here"
+        else:
+            self.password = password
+        print "Got creds"
+        print "Getting API session"
+        self.access_token = self.get_access_token()
+        print "Logged on to API session"
+        self.agent = requests.session()
+        self.agent_login()
+        self.csrftoken = self.agent.cookies['csrftoken']
+        print "Logged on to HTML session"
+        
+
+    def get_access_token(self):
+        try:
+            logging.debug("Getting stored access token")
+            token_file = open("localbitcoins_token%s.txt" % self.username, "rb")
+            access_token = token_file.read()
+            logging.debug("Got stored access token")
+            return access_token
+
+        except IOError:
+            logging.debug("Getting new access token")
+            pass
+        
+        print dir(requests)
+        url = "https://localbitcoins.com/oauth2/access_token/"
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        data = {
+                "grant_type": "password",
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "username": self.username,
+                "password": self.password,
+                "scope": "read+write"}
+        token_response = requests.post(
+            url, 
+            data=data, headers=headers)
+        #print token_response
+        #print json.loads(token_response)
+        #print dir(token_response)
+
+	conn = httplib.HTTPSConnection(domain)
+	conn.request("POST", url, data, headers)
+	response = conn.getresponse()
+	ticker = json.load(response)
+
+        logging.debug("Posted to oauth2 url")
+        print "Response", token_response
+
+        if "access_token" not in token_response:
+            logging.fatal("No key in response")
+            exit(1)
+
+        access_token = token_response["access_token"]
+        logging.debug("Got new access token")
+        with open("localbitcoins_token%s.txt" % self.username, "wb") as f:
+            f.write(access_token)
+        logging.debug("Saved access token.")
+        
+        return access_token
+    
+    def get_user(self, username):
+        logging.debug("Getting user data for %s" % username)
+        r = requests.get('https://localbitcoins.com/api/account_info/%s/' % username)
+        return json.loads(r.text)
+    
+    def get_escrows(self):
+        logging.debug("Getting escrows")
+        r = requests.post(
+                'https://localbitcoins.com/api/escrows/',
+                data={'access_token': self.access_token})
+        return json.loads(r.text)
+        
+    def release_escrow(self, release_url=None, escrow=None):
+        logging.debug('Releasing escrow')
+        if not release_url == None:
+            pass
+        elif not escrow == None:
+            release_url = escrow['actions']['release_url']
+            
+        r = requests.post(release_url,
+                data={'access_token': self.access_token})
+        response = json.loads(r.text)
+        
+        return response
+    
+    def get_ads(self):
+        logging.debug('Getting ads')
+        r = requests.get(
+                'https://localbitcoins.com/api/ads/',
+                params={'access_token': self.access_token})
+        return json.loads(r.text)
+    
+    def edit_ad(self, ad_id, visible, min_amount, max_amount, price_equation):
+        logging.debug('Editing ad')
+        r = requests.post(
+                'https://localbitcoins.com/api/ad/%s/' % ad_id,
+                params={'access_token': self.access_token},
+                data={'visible': visible,
+                        'min_amount': min_amount,
+                        'max_amount': max_amount,
+                        'price_equation': price_equation})
+        return r.text
+    
+    def update_prices(self, price_equation, trade_type):
+        ''' Pass in a price equation and type of ad you want it to apply to
+            and all your ads of that type will be updated. Returns a list of
+            responses to the edits '''
+        logging.debug('Upating prices')
+        ads = self.get_ads()['data']['ad_list']
+        response = []
+        for ad in ads:
+            data = ad['data']
+            if data['trade_type'] == trade_type:
+                response += [self.edit_ad(data['ad_id'], data['visible'],
+                             data['min_amount'], data['max_amount'],
+                             price_equation)]                
+        return response              
+        
+    def agent_login(self):
+        ''' Added function to log in allowing access to additional functions
+            not yet covered by the official API. These functions will be deprecated once
+            the official API covers them. '''
+        self.agent.get('https://localbitcoins.com/', verify=False)
+        csrftoken = self.agent.cookies['csrftoken']
+        self.agent.post('https://localbitcoins.com/accounts/login/',
+                        data={'username': self.username,
+                            'password': self.password,
+                            'csrfmiddlewaretoken' : csrftoken},
+                            headers=hdr, verify=False)
+
+    def delete_ads(self, start=0, end='inf'):
+        ''' Unofficial API function '''
+        ads = self.get_ads()['data']['ad_list']
+        delete_ids = [ad['data']['ad_id'] for ad in ads
+                      if ad['data']['ad_id'] >= start
+                      and ad['data']['ad_id'] <= end]
+        response = []
+        for ad_id in delete_ids:
+            response += [self.delete_ad(ad_id)]
+        return response
+
+    def send_message(self, ad_url, message):
+        ''' Unofficial API function '''
+        logging.debug('Sending message')
+        try:
+            post_data = {'msg': message}
+            post_data['csrfmiddlewaretoken'] = self.csrftoken
+            self.agent.post(ad_url, data=post_data, headers=hdr)
+            response = {'success': 1}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+            pass
+        return response
+        
+    def delete_ad(self, ad_id):
+        ''' Unofficial API function '''
+        logging.debug('Deleting ad')
+        try:
+            r = self.agent.get(
+                     'https://localbitcoins.com/ads_delete/%s' % ad_id,
+                     headers=hdr)
+            if "alert alert-success" in r.text:
+                response = {'success': 1, 'deleted_id': ad_id}
+            else:
+                response = {'success': 0}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+        return response
+    
+    def clone_ad_html(self, ad_id, ad_trade_type, ad_online_provider, edits_dict=None):
+        ''' Unofficial API function
+            Requires valid online provider and trade type parameters as they
+            are not present in the cloned ad'''
+        logging.debug('Cloning ad')
+        ad_url = 'https://localbitcoins.com/ads_edit/%s' % ad_id
+        ad = self.agent.get(ad_url, headers=hdr).text
+
+        soup = BeautifulSoup(ad)
+        post_data = _get_post_data(soup)
+        post_data = dict(post_data.items() + edits_dict.items())
+        post_data['csrfmiddlewaretoken'] = self.csrftoken
+        post_data['submit'] = 'Publish advertisement'
+        post_data['ad-trade_type'] = ad_trade_type
+        post_data['ad-online_provider'] = ad_online_provider
+        post_data['ad-contact_hours'] = post_data['ad-msg'][0].replace('Contact hours: ', '')
+        logging.debug(post_data)
+        new_ad_url = 'https://localbitcoins.com/advertise/'
+        try:
+            r = self.agent.post(new_ad_url, data=post_data, headers=hdr)
+            if "error" in r.text:
+                response = {'success': 0, 'error': 'Failed to clone ad'}
+            else:
+                response = {'ad_id': r.url.split('/')[-2]}
+                response['success'] = 1
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+        
+        return response
+    
+    def edit_ad_html(self, ad_no, edits_dict=None):
+        ''' Unofficial API function '''
+        logging.debug('Editing ad')
+        ad_url = 'https://localbitcoins.com/ads_edit/%s' % ad_no
+        ad = self.agent.get(ad_url, headers=hdr).text
+        soup = BeautifulSoup(ad)
+        post_data = _get_post_data(soup)
+        post_data = dict(post_data.items() + edits_dict.items())
+
+        try:
+            post_data['csrfmiddlewaretoken'] = self.csrftoken
+            r = self.agent.post(ad_url, data=post_data, headers=hdr)
+            if "alert alert-success" in r.text:
+                response = {'success': 1, 'edited_ad': ad_url}
+            elif "error" in r.text:
+                response = {'success': 0, 'error': 'Failed to upload ad'}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+            
+        return response
+
+    def _get_ad(self, ad_id):
+        return self.agent.get('https://localbitcoins.com/ad/%s' % ad_id)
+    
+    def send_coins(self, address, amount):
+        ''' Unofficial API function '''
+        url = 'https://localbitcoins.com/accounts/wallet/'
+        post_data = {'address_to': address,
+                     'amount': amount,
+                     'send_submit': ''}
+        post_data['csrfmiddlewaretoken'] = self.csrftoken
+        try:
+            self.agent.post(url, data=post_data, headers=hdr)
+            response = {'success': 1}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+        
+        return response
+    
+    def open_offer(self, ad_id, amount, curr='BTC', message=None):
+        ''' Unofficial API function '''
+        logging.debug('Making escrow offer on %s for %s %s' % (ad_id, amount, curr))
+        
+        ad = self._get_ad(ad_id)
+        url = self._get_action_url(ad)
+        if url['success']:
+            url = url['action_url']
+        else:
+            return url
+        
+        price = self._get_price(ad)
+        
+        if curr == 'BTC':
+            btc_amount = amount
+            fiat_amount = '%.2f' % (amount * price)
+        else:
+            fiat_amount = amount
+            btc_amount = '%.2f' % (amount / price)
+        post_data = {'amount': fiat_amount,
+                    'btcinput': btc_amount,
+                    'msg': '',
+                    'trade_type': 'ESCROW',
+                    'csrfmiddlewaretoken': self.csrftoken}
+        
+        try:
+            response = self.agent.post(url, data=post_data, headers=hdr)
+            escrow_pattern = re.compile('"https://localbitcoins.com/escrow_buyer/(.*)" />')
+            escrow_id = escrow_pattern.findall(response.text)[0]
+            reference_pattern = re.compile('Reference/message: <b>(.*)</b>')
+            reference = reference_pattern.findall(response.text)[0]
+            response = {'escrow_id': escrow_id, 'reference': reference, 'success': 1}
+ 
+        except Exception, e:
+            if 'Amount should be at least' in response.text:
+                e = 'Order too small'
+            response = {'success': 0, 'error': e}
+        
+        return response
+    
+    def cancel_offer(self, escrow_id):
+        ''' Unofficial API function '''
+        logging.debug('Cancelling escrow buy offer')
+        try:
+            r = self.agent.get(
+                     'https://localbitcoins.com/escrow_buyer_cancel/%s' % escrow_id,
+                     headers=hdr)
+            if "alert alert-success" in r.text:
+                response = {'success': 1, 'deleted_id': escrow_id}
+            else:
+                response = {'success': 0}
+        except Exception, e:
+            response = {'success': 0, 'error': e}
+            
+        return response
+    
+    def _get_price(self, ad):
+        pattern = re.compile('<h4 class="price">(.*\.\d\d)')
+        return float(pattern.findall(ad.text)[0])
+        
+    def _get_action_url(self, ad):
+        if 'This trader is currently on vacation or is out of bitcoins' in ad.text:
+            response = {'success': 0, 'error': 'No trade available'}
+        else:
+            pattern = re.compile('action="(.*)" method')
+            pattern.findall(ad.text)[0]
+            response = {'action_url': pattern.findall(ad.text)[0], 'success': 1}
+
+        return response
+    
+def _get_post_data(soup):
+    inputs = soup.find_all(_required_inputs)
+    print inputs
+    #inputs_dict = {tag.get('name'): tag.get('value') for tag in inputs}
+
+    controls = soup.find_all('select')
+    controls_dict = _add_controls(controls)
+
+    text = soup.find_all('textarea')
+    text_dict = _add_text(text)
+    
+    post_data = inputs_dict
+    post_data = dict(post_data.items() + controls_dict.items())
+    post_data = dict(post_data.items() + text_dict.items())
+    
+    return post_data
+
+def _required_inputs(tag):
+    discard_tags = ['csrfmiddlewaretoken', 'action_url', 'header', 'msg']
+    if tag.get('type') == 'hidden' and tag.get('name') in discard_tags:
+        return
+    if tag.get('type') == 'radio' and tag.get('checked') != 'checked':
+        return
+    elif tag.get('type') == 'checkbox' and tag.get('checked') != 'checked':
+        return
+    else:
+        return tag.name == 'input'
+
+def _add_controls(controls):
+    controls_dict = {}
+    for c in controls:
+        if c['name'] == 'ad-online_provider':
+            controls_dict[c['name']] = c.find_all('option')[0]['value']
+        else:
+            controls_dict[c['name']] = c.find_all('option',
+                                        attrs={'selected': "selected"})[0]['value']
+    return controls_dict
+
+def _add_text(text):
+    text_dict = {}
+    for t in text:
+        text_dict[t['name']] = (t.contents if len(t.contents) > 0 else "")
+    return text_dict
+
