@@ -167,9 +167,12 @@ class broker(object):
 	def analyze(self):
 		
 		def n(a):
-			n = re.sub(r',', '', a)
-			n = float(n)
-			return n
+			try:
+				n = re.sub(r',', '', a)
+				n = float(n)
+				return n
+			except:
+				return ''
 			
 		def doPlot(b):
 			# plot
@@ -188,13 +191,12 @@ class broker(object):
 			pylab.show()
 		
 		c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
-		#c = 'cat output-lynx-txt'
+		#c = 'cat output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
-		print r
-		
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)']
 		for i in r:
 			print i
 			#print type(i)
@@ -214,7 +216,8 @@ class broker(object):
 		fname = 'output-lynx.csv'
 		b1 = open(fname,'w')
 		c1 = csv.writer(b1)
-		c1.writerows(r)
+		c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
+		c1.writerows(b)
 		b1.close()
 		status, output = commands.getstatusoutput('ggobi '+fname)
 		
