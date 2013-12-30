@@ -190,6 +190,13 @@ class broker(object):
 			pyplot.legend()
 			pylab.show()
 		
+		# todo: get more data
+		# https://bitcointalk.org/index.php?topic=146675.0
+		# http://www.cryptocoincharts.info/v2/coins/info
+		# http://www.wheretomine.com/
+		# http://www.coinwarz.com/cryptocurrency
+		# http://dustcoin.com/		
+		
 		c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
 		#c = 'cat output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
