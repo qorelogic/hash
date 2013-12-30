@@ -59,7 +59,9 @@ if __name__ == '__main__':
 			
 			#c.check()			
 			#print c.getInfo()
-		
+		if sys.argv[1] == 'analyze':
+			b.analyze()
+			
 	except IndexError, e:
 		''
 b.showLog()

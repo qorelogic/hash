@@ -19,6 +19,11 @@ import math
 
 from config import *
 
+import commands
+from numpy import *
+import pylab
+import matplotlib.pyplot as pyplot
+
 def nv(n):
 	#return type(n)
 	#if n != '':
@@ -158,6 +163,79 @@ class broker(object):
 			
 		#	sys.exit()
 		return self.info
+	
+	def analyze(self):
+		
+		def n(a):
+			n = re.sub(r',', '', a)
+			n = float(n)
+			return n
+			
+		def doPlot(b):
+			# plot
+			col1 = b[:,1]
+			#pylab.hist(b)
+			#pylab.hist(col1)
+			#pylab.set_yaxis('log')
+			#pylab.plot(col1)
+			fig = pyplot.figure()
+			ax = fig.add_subplot(1,1,1)
+			line = ax.plot(col1, color='blue', lw=1, label='Market Cap')
+			line = ax.plot(b[:,4], color='green', lw=1, label='Volume (24hr)')
+			line = ax.plot(b[:,5], color='blue', lw=1, label='% Change (24hr)')
+			ax.set_yscale('log')
+			pyplot.legend()
+			pylab.show()
+		
+		c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
+		#c = 'cat output-lynx-txt'
+		status, output = commands.getstatusoutput(c)
+		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
+		
+		b = array([])
+		print r
+		
+		for i in r:
+			print i
+			#print type(i)
+			#print i[2]
+			# numpy analysis
+			a = array( [ n(i[0]), n(i[2]), n(i[4]), n(i[5]), n(i[7]), n(i[8])  ] )
+			try:
+				#print a
+				#b = vstack([b, a])
+				b = concatenate((b, a))
+			except:
+				''
+		b = b.reshape((b.shape[0]/6), 6)
+		print b
+		
+		import csv
+		fname = 'output-lynx.csv'
+		b1 = open(fname,'w')
+		c1 = csv.writer(b1)
+		c1.writerows(r)
+		b1.close()
+		status, output = commands.getstatusoutput('ggobi '+fname)
+		
+		#sum = b.sum(axis=0)
+		#print [sum[1],sum[3]]
+		#print sum
+		#print b[0:1, : ]
+		
+		doPlot(b)
+		
+		"""
+		a = arange(15).reshape(3,5)
+		print a
+		print a.sum(axis=0)
+		a = array([1])
+		#print dir(a)
+		a = vstack([1])
+		print a
+		a = vstack([2])
+		print a
+		"""
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):
