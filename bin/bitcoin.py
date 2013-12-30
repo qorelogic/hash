@@ -57,13 +57,13 @@ class broker(object):
 		
 		# check variables
 		try:
-			print self.domain
+			self.domain
 		except:
 			print 'self.domain is not set'
 			sys.exit()
 			
 		try:
-			print self.url
+			self.url
 		except:
 			print 'self.url is not set'
 			sys.exit()
@@ -124,7 +124,6 @@ class broker(object):
 		self.params = {"method": self.method_getInfo,
 			  "nonce": self.getNonce()}
 		self.params = urllib.urlencode(self.params)
-		print self.params
 
 		# Hash the params string to produce the Sign header value
 		H = hmac.new(self.api_secret, digestmod=hashlib.sha512)
@@ -133,18 +132,18 @@ class broker(object):
 		headers = {"Content-type": "application/x-www-form-urlencoded",
 				   "key":self.api_key,
 				   "sign":self.sign}
-		print headers
+		#print headers
 			
 		conn = httplib.HTTPSConnection(self.domain)
 		conn.request("POST", self.url, self.params, headers)
 		response = conn.getresponse()
-		print response
-		#try:
-		res = json.load(response)
-		#except:
-		#	print 'server flooded'
-		#	sys.exit()
-		print res
+		#print response
+		try:
+			res = json.load(response)
+		except:
+			print 'server flooded'
+			sys.exit()
+		#print res
 		try:
 			self.info = res['return']['funds']
 		except KeyError, e:
@@ -156,7 +155,7 @@ class broker(object):
 			else:
 				print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'
 			
-		#	sys.exit()
+			sys.exit()
 		return self.info
 
 class cryptsy(broker):
@@ -192,9 +191,11 @@ class btce(broker):
 		params = {}
 		if server == "blockchain.info":
 			conn = httplib.HTTPSConnection(server)
+			url = 'https://'+server+str(req)
 		else:
 			conn = httplib.HTTPConnection(server)
-		url = 'https://'+server+str(req)
+			url = 'http://'+server+str(req)
+		print url
 		try:
 			conn.request("GET", req, params, headers)
 			response = conn.getresponse()
@@ -210,7 +211,9 @@ class btce(broker):
 			print '\t ' + url
 			
 			return float(e)
-		except socket.error, e:
+		#except socket.error, e:
+		#	''
+		except:
 			''
 		
 	def getTicker(self, i):
@@ -356,6 +359,7 @@ class btce(broker):
 		#	print 'You may edit api key here: https://btc-e.com/profile#api_keys'
 		#	sys.exit()
 
+		bal = 0
 		tusdbal = 0
 		tusdbalshould  = 0 
 
@@ -404,41 +408,45 @@ class btce(broker):
 			if i == 'ltc':
 				for j in range(0, len(config().dat[i][1])):
 					bal = self.getBlockChains("litecoinscout.com", "/address/"+config().dat[i][1][j], '(Balance: (.*?) LTC)')
-					self.currencies[i]['bal'] += bal
+					if type(bal) != None:
+						self.currencies[i]['bal'] += bal
 
 			# bitcoin balance
-			try:
-				if i == 'btc' and type(config().dat[i][1]):
-					for j in range(0, len(config().dat[i][1])):
-						#if config().dat[i][1][j] != config().brokerBlockchains[i][0]:
-						#try:
-						# two modes
-						# - '<blockchain address>'
-						# - ['description',<amount(float)>]
-						address = config().dat[i][1][j]
-						self.log('adress:'+str(address))
-						if type(address) == type(""):
-							bal = self.getBlockChains("blockchain.info", "/address/"+address, '(Balance.*?([\d\.]+) BTC)')
-							
-						if type(address) == type([]):
-							self.log('adress bal:'+str(address[1]))
-							self.log('adress bal:'+str(type(address[1])))
-							bal = address[1]
-							print '	'+address[0] + '	' + str(address[1])
-						# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
-						#self.brokerBlockchains[i].index(config().dat[i][1][j])
+			#try:
+			if i == 'btc' and type(config().dat[i][1]):
+				for j in range(0, len(config().dat[i][1])):
+					#if config().dat[i][1][j] != config().brokerBlockchains[i][0]:
+					#try:
+					# two modes
+					# - '<blockchain address>'
+					# - ['description',<amount(float)>]
+					address = config().dat[i][1][j]
+					self.log('adress:'+str(address))
+					if type(address) == type(""):
+						bal = self.getBlockChains("blockchain.info", "/address/"+address, '(Balance.*?([\d\.]+) BTC)')
+					else:
+						bal = 0
+						
+					if type(address) == type([]):
+						self.log('adress bal:'+str(address[1]))
+						self.log('adress bal:'+str(type(address[1])))
+						bal = address[1]
+						print '	'+address[0] + '	' + str(address[1])
+					# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
+					#self.brokerBlockchains[i].index(config().dat[i][1][j])
+					if type(bal) != None:
 						self.currencies[i]['bal'] += bal
-						"""
-						except ValueError, e:
-							# add to balance if config().dat[i][1][j] is not registered in brokerBlockchains
-							self.currencies[i]['bal'] += bal
-							print e
-						except NameError, e:
-							print e
-							''
-						"""
-			except TypeError, e:
-				print e
+					"""
+					except ValueError, e:
+						# add to balance if config().dat[i][1][j] is not registered in brokerBlockchains
+						self.currencies[i]['bal'] += bal
+						print e
+					except NameError, e:
+						print e
+						''
+					"""
+			#except TypeError, e:
+			#	print e
 			
 			try:
 				if type(self.btcBaseCurrencies.index(i)) == type(1):
