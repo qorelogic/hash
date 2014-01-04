@@ -204,27 +204,34 @@ class broker(object):
 		
 		b = array([])
 		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)']
-		for i in r:
-			print i
+		r = asarray(r)
+		for i in range(0,len(r)):
+			r[i][2] = n(r[i][2])
+			r[i][5] = n(r[i][5])
+			r[i][7] = n(r[i][7])
+		print r
+		#for i in r:
+			#print i
 			#print type(i)
 			#print i[2]
 			# numpy analysis
-			a = array( [ n(i[0]), n(i[2]), n(i[4]), n(i[5]), n(i[7]), n(i[8])  ] )
-			try:
-				#print a
-				#b = vstack([b, a])
-				b = concatenate((b, a))
-			except:
-				''
-		b = b.reshape((b.shape[0]/6), 6)
-		print b
+		#	a = array( [ n(i[0]), n(i[2]), n(i[4]), n(i[5]), n(i[7]), n(i[8])  ] )
+		#	try:
+		#		#print a
+		#		#b = vstack([b, a])
+		#		b = concatenate((b, a))
+		#	except:
+		#		''
+		#b = b.reshape((b.shape[0]/6), 6)
+		#print b
 		
 		import csv
 		fname = 'output-lynx.csv'
 		b1 = open(fname,'w')
 		c1 = csv.writer(b1)
-		c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
-		c1.writerows(b)
+		#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
+		c1.writerow(header)
+		c1.writerows(r)
 		b1.close()
 		status, output = commands.getstatusoutput('ggobi '+fname)
 		
