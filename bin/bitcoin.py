@@ -24,6 +24,8 @@ from numpy import *
 import pylab
 import matplotlib.pyplot as pyplot
 
+import csv
+
 def nv(n):
 	#return type(n)
 	#if n != '':
@@ -163,7 +165,7 @@ class broker(object):
 			
 		#	sys.exit()
 		return self.info
-	
+	# https://btc-e.com/api/2/btc_usd/depth	
 	def analyze(self):
 		
 		def n(a):
@@ -176,10 +178,16 @@ class broker(object):
 			
 		def doPlot(b):
 			# plot
+			b = delete(b, 1, 1)
+			b = delete(b, 2, 1)
+			b = delete(b, 4, 1)
+			#print b
 			col1 = b[:,1]
-			#pylab.hist(b)
+			try:
+				pylab.hist(b)
+			except:
+				''
 			#pylab.hist(col1)
-			#pylab.set_yaxis('log')
 			#pylab.plot(col1)
 			fig = pyplot.figure()
 			ax = fig.add_subplot(1,1,1)
@@ -197,19 +205,33 @@ class broker(object):
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
 		
-		c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
-		#c = 'cat output-lynx.txt'
-		status, output = commands.getstatusoutput(c)
+		#status, output = commands.getstatusoutput("lynx -dump -width=200 coinmarketcap.com | grep '%'")
+		status, output = commands.getstatusoutput('cat output-lynx.txt')
+		
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)']
+		header = [('#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)')]
+		header = asarray(header)
+		#print r
 		r = asarray(r)
 		for i in range(0,len(r)):
 			r[i][2] = n(r[i][2])
 			r[i][5] = n(r[i][5])
 			r[i][7] = n(r[i][7])
-		print r
+			r[i][8] = n(r[i][8])
+		
+		#header = delete(header, 1, 1)
+		#header = delete(header, 5, 1)
+		#header = delete(header, 2, 1)
+		
+		#r = delete(r, 1, 1)
+		#r = delete(r, 5, 1)
+		#r = delete(r, 2, 1)
+		
+		#print header
+		#print r
+		
 		#for i in r:
 			#print i
 			#print type(i)
@@ -225,22 +247,21 @@ class broker(object):
 		#b = b.reshape((b.shape[0]/6), 6)
 		#print b
 		
-		import csv
 		fname = 'output-lynx.csv'
 		b1 = open(fname,'w')
-		c1 = csv.writer(b1)
+		c1 = csv.writer(b1, delimiter=',', quotechar="'", quoting=csv.QUOTE_ALL)
 		#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
-		c1.writerow(header)
+		c1.writerow(header[0])
 		c1.writerows(r)
 		b1.close()
-		status, output = commands.getstatusoutput('ggobi '+fname)
+		#status, output = commands.getstatusoutput('ggobi '+fname)
 		
 		#sum = b.sum(axis=0)
 		#print [sum[1],sum[3]]
 		#print sum
 		#print b[0:1, : ]
 		
-		doPlot(b)
+		doPlot(r)
 		
 		"""
 		a = arange(15).reshape(3,5)
