@@ -61,7 +61,9 @@ if __name__ == '__main__':
 			#print c.getInfo()
 		if sys.argv[1] == 'analyze':
 			b.analyze()
-			
+		if sys.argv[1] == 'analyze-depth':
+			b.analyze_depth_btce()			
+
 	except IndexError, e:
 		''
 b.showLog()

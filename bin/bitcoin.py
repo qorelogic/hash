@@ -165,7 +165,7 @@ class broker(object):
 			
 		#	sys.exit()
 		return self.info
-	# https://btc-e.com/api/2/btc_usd/depth	
+	
 	def analyze(self):
 		
 		def n(a):
@@ -175,7 +175,7 @@ class broker(object):
 				return n
 			except:
 				return ''
-			
+		
 		def doPlot(b):
 			# plot
 			b = delete(b, 1, 1)
@@ -197,7 +197,7 @@ class broker(object):
 			ax.set_yscale('log')
 			pyplot.legend()
 			pylab.show()
-		
+			
 		# todo: get more data
 		# https://bitcointalk.org/index.php?topic=146675.0
 		# http://www.cryptocoincharts.info/v2/coins/info
@@ -274,6 +274,86 @@ class broker(object):
 		a = vstack([2])
 		print a
 		"""
+		
+	def analyze_depth_btce(self):
+		def get():
+			domain = 'btc-e.com'
+			headers = {}
+			url = 'https://'+domain+'/api/2/btc_usd/depth'
+			conn = httplib.HTTPSConnection(domain)
+			conn.request("GET", url, self.params, headers)
+			response = conn.getresponse()
+			res = json.load(response)
+			#f = open('btce-depth.json', 'r')
+			#j = f.read()
+			#res = json.loads(j)
+			return res
+		
+		
+		def orderbook():
+			#pylab.hist([1])
+			
+			pylab.ion()
+			res = get()
+			r1 = asarray(res['bids'])			
+			pylab.hist(r1)
+			#pylab.plot(r1)
+			r2 = asarray(res['asks'])
+			pylab.hist(r2)
+			#pylab.plot(r2)
+			
+			fig = pyplot.figure()			
+			ax = fig.add_subplot(1,1,1)
+			line1 = ax.plot(r1[:,0], color='blue', lw=1, label='Bid')
+			line2 = ax.plot(r2[:,0], color='red', lw=1, label='Ask')
+			#line = ax.plot(r[:,1], color='green', lw=1, label='Size')
+			#ax.set_yscale('log')
+			#pyplot.legend()
+			for i in arange(1,3):
+				print 'update '+str(i)
+				#line1.set_ydata(r1)
+				pylab.draw()
+				time.sleep(1)
+			pylab.ioff()
+			pylab.show()
+			
+		def orderbook2():
+			res = get()
+			r1 = asarray(res['bids'])
+			
+			#try:
+			pylab.hist(r1)
+			pyplot.legend()
+			#pylab.show()
+
+			r2 = asarray(res['asks'])
+			pylab.hist(r2)
+			#except:
+			#	''
+			#pylab.hist(col1)
+			#pylab.plot(col1)
+			fig = pyplot.figure()
+			ax = fig.add_subplot(1,1,1)
+			line = ax.plot(r1[:,0], color='blue', lw=1, label='Bid')
+			line = ax.plot(r2[:,0], color='red', lw=1, label='Ask')
+			#line = ax.plot(r[:,1], color='green', lw=1, label='Size')
+			#ax.set_yscale('log')
+			#pyplot.legend()
+			pylab.show()
+			
+		def test(self):
+			ion()
+			tstart = time.time()               # for profiling
+			x = arange(0,2*pi,0.01)            # x-array
+			line, = plot(x,sin(x))
+			for i in arange(1,200):
+			    line.set_ydata(sin(x+i/10.0))  # update the data
+			    draw()                         # redraw the canvas
+			    pause(0.01)
+			print 'FPS:' , 200/(time.time()-tstart)
+			ioff()
+			show()
+		orderbook()
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):
