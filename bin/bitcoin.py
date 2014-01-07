@@ -205,8 +205,8 @@ class broker(object):
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
 		
-		#status, output = commands.getstatusoutput("lynx -dump -width=200 coinmarketcap.com | grep '%'")
-		status, output = commands.getstatusoutput('cat output-lynx.txt')
+		status, output = commands.getstatusoutput("lynx -dump -width=200 coinmarketcap.com | grep '%'")
+		#status, output = commands.getstatusoutput('cat output-lynx.txt')
 		
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
@@ -254,7 +254,7 @@ class broker(object):
 		c1.writerow(header[0])
 		c1.writerows(r)
 		b1.close()
-		#status, output = commands.getstatusoutput('ggobi '+fname)
+		status, output = commands.getstatusoutput('ggobi '+fname)
 		
 		#sum = b.sum(axis=0)
 		#print [sum[1],sum[3]]
