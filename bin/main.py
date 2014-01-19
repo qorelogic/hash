@@ -65,6 +65,6 @@ if __name__ == '__main__':
 			b.analyze_depth_btce()			
 
 	except IndexError, e:
-		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze >'
+		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-depth >'
 
 #o = LocalBitcoinsAPI()
