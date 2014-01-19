@@ -62,13 +62,15 @@ class broker(object):
 		
 		# check variables
 		try:
-			print self.domain
+			#print self.domain
+			self.domain
 		except:
 			print 'self.domain is not set'
 			sys.exit()
 			
 		try:
-			print self.url
+			#print self.url
+			self.url
 		except:
 			print 'self.url is not set'
 			sys.exit()
@@ -284,12 +286,21 @@ class btce(broker):
 		self.log('getBlockChains')
 		self.getNonce()
 		headers = {"Content-type": "application/x-www-form-urlencoded"}
-		params = {}
+		#headers = {}
+		#params = {}
+		params = ""
 		if server == "blockchain.info":
 			conn = httplib.HTTPSConnection(server)
+			#print 'https'
 		else:
 			conn = httplib.HTTPConnection(server)
+			#print 'http'
 		url = 'https://'+server+str(req)
+		#print url
+		#print req
+		#print params
+		#print headers
+		#print server
 		try:
 			conn.request("GET", req, params, headers)
 			response = conn.getresponse()
@@ -305,8 +316,10 @@ class btce(broker):
 			print '\t ' + url
 			
 			return float(e)
-		except socket.error, e:
-			''
+		#except socket.error, e:
+		#	''
+		except:
+			return float(0)
 		
 	def getTicker(self, i):
 		self.log('getTicker '+i)
