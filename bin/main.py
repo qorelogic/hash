@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 from bitcoin import *
-#from lib.localbitcoinsapi.LocalBitcoins.lb_api import *
 
 b = btce('OMMAJZSC-1EALBXVT-9M5W5HQL-LGKATXK9-K3IRAZ8J', 'ea826635cbcdce27cdea458e3fbb027040f9b8994421b494b901fcc28af1554a')
 c = cryptsy('fe329b4733fc1ccc7dfa900e1cbd7c2ca224bbaa','6730fa20414b90e9f0ce11bdbb3aba81824388d39a6f9e66c9bf2036e1fcbb7f29c39cca7c840c5d')
@@ -61,6 +60,10 @@ if __name__ == '__main__':
 			#print c.getInfo()
 		if sys.argv[1] == 'analyze':
 			b.analyze()
+		if sys.argv[1] == 'test2':
+			#print b.getBlockChains('dogechain.info','/address/DBHAPfBRc7L7WTcr2Cnf6tfvTRtdKEpnkF','(Balance.*?([\d\.]+).*?DOGE)')
+			print price().getPriceJSON('DOGE')
+			print price().getPriceJSON('MOON')
 			
 	except IndexError, e:
 		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze >'

@@ -38,6 +38,64 @@ def nd(n,dec):
 	#v = "{123}."+str(dec)+"f".format(float(n))
 	return float(v)
 
+from urlparse import urlparse
+class price(object):
+	def __init__(self):
+		#self.getPriceJSON(curr)
+		#print self.marketData()
+		''
+	
+	def callAPI(self, url):
+		u = urlparse(url)
+		server = u.hostname
+		req = u.path + '?' + u.query
+		#self.getNonce()
+		headers = {"Content-type": "application/x-www-form-urlencoded"}
+		params = ""
+		if u.scheme == 'http':
+			conn = httplib.HTTPConnection(server)
+		if u.scheme == 'https':
+			conn = httplib.HTTPSConnection(server)
+		url = 'https://'+server+str(req)
+		#print url
+		#print req
+		#print params
+		#print headers
+		#print server
+		conn.request("GET", req, params, headers)
+		response = conn.getresponse()
+		content = response.read()
+		conn.close()
+		j =  content
+		jo = json.loads(j)
+		return jo
+	
+	def getPriceJSON(self, currency):
+		if currency == 'DOGE':
+			jo = self.callAPI('http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=132')
+			return float(jo['return']['markets']['DOGE']['lasttradeprice'])
+	
+		if currency == 'MOON':
+			# source; https://gist.github.com/erundook/8377222
+			jo = self.callAPI('https://coinex.pw/api/v2/trade_pairs')
+			
+			for i in jo['trade_pairs']:
+				if i['url_slug'] == 'moon_btc':
+					return float(i['last_price'] * pow(10,-8))
+	
+	def marketData(self):
+		j = self.callAPI('http://pubapi.cryptsy.com/api.php?method=marketdatav2')
+		self.markets = j['return']['markets']
+		for i in self.markets:
+			print i
+			#print self.markets[i]
+			print self.markets[i]['marketid']
+
+class coinexPw(object):
+	def __init__(self):
+		# mining info: https://coinex.pw/api/v2/currencies	
+		''
+
 class broker(object):
 	def __init__(self, api_key, api_secret):
 		# Replace these with your own API key data
@@ -56,7 +114,7 @@ class broker(object):
 		H.update(self.params)
 		self.sign = H.hexdigest()
 		
-		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm']
+		self.btcBaseCurrencies = ['nmc','nvc','ftc','ppc','trc','xpm','doge','moon']
 		
 		self.currencies = {}
 		
@@ -338,6 +396,7 @@ class btce(broker):
 			type(self.currencies[i])
 		except:
 			self.currencies[i] = {}
+		# set the base currency
 		try:
 			if type(self.btcBaseCurrencies.index(i)) == type(1):
 				self.currencies[i]['basecurr'] = 'btc'
@@ -472,47 +531,97 @@ class btce(broker):
 		print "= Blockchains & Brokers ========================================================="
 		print ""
 		baseTicker = self.getTicker('btc')
+		"""
 		for i in responseBTCe:
 			self.currencies[i] = {}
 			self.currencies[i]['xsell'] = 0
-			if responseBTCe[i] > 0 or config().dat.has_key(i):
-				print i
+		"""
+		for i in config().dat:
+			# ignore usd
+			if i == 'usd':
+				continue
+			try:
+				if responseBTCe[i] > 0 or config().dat.has_key(i):
+					print i
+					ticker = self.getTicker(i)
+					try:
+						self.currencies[i]['xsell'] = ticker['ticker']['sell']
+					except KeyError:
+						'stub'
+					except TypeError:
+						self.currencies[i]['xsell'] = 1
+					try:
+						self.currencies[i]['xbuy'] = ticker['ticker']['buy']
+					except KeyError:
+						'stub'
+					except TypeError:
+						self.currencies[i]['xbuy'] = 1
+						
+					try:
+						self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
+					except KeyError:
+						'stub'
 				
-				ticker = self.getTicker(i)
-				try:
-					self.currencies[i]['xsell'] = ticker['ticker']['sell']
-				except KeyError:
-					'stub'
-				except TypeError:
-					self.currencies[i]['xsell'] = 1
-				try:
-					self.currencies[i]['xbuy'] = ticker['ticker']['buy']
-				except KeyError:
-					'stub'
-				except TypeError:
-					self.currencies[i]['xbuy'] = 1
-					
-				try:
-					self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
-				except KeyError:
-					'stub'
+				# balance from btc
+				bal = responseBTCe[i]
+				if bal > 0:
+					print '\t btce['+i+'] \t',
+					print '%.8f' % nd(bal,8)
+					print '\t---'
+					# log the broker(btce) balance to file, save the balance for future reference
+					# do not trust that the broker can record your actual balance.
+					self.logToFile(i, bal)
+				self.currencies[i]['bal'] = bal
+			except:
+				''
 			
-			# balance from btc
-			bal = responseBTCe[i]
-			if bal > 0:
-				print '\t btce['+i+'] \t',
-				print '%.8f' % nd(bal,8)
-				print '\t---'
-				# log the broker(btce) balance to file, save the balance for future reference
-				# do not trust that the broker can record your actual balance.
-				self.logToFile(i, bal)
-			self.currencies[i]['bal'] = bal
-			
+			def getMBal(server, address, compile):
+				if type(address) == type(""):
+					bal = self.getBlockChains(server, "/address/"+address, compile)
+				if type(address) == type([]):
+					self.log('adress bal:'+str(address[1]))
+					self.log('adress bal:'+str(type(address[1])))
+					bal = address[1]
+					print '	'+address[0] + '	' + str(address[1])
+				# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
+				#self.brokerBlockchains[i].index(config().dat[i][1][j])
+				try:
+					self.currencies[i]['bal'] += bal
+				except:
+					self.currencies[i] = {}
+					self.currencies[i]['bal'] = bal
+				return bal
+				
 			# litecoin balance
 			if i == 'ltc':
 				for j in range(0, len(config().dat[i][1])):
-					bal = self.getBlockChains("litecoinscout.com", "/address/"+config().dat[i][1][j], '(Balance: (.*?) LTC)')
-					self.currencies[i]['bal'] += bal
+					bal = getMBal("litecoinscout.com", config().dat[i][1][j], '(Balance: (.*?) LTC)')
+					"""
+					try:
+						self.currencies[i]['bal'] += bal
+					except:
+						self.currencies[i]['bal'] = bal
+					"""
+			
+			# dogecoin balance
+			if i == 'doge':
+				for j in range(0, len(config().dat[i][1])):
+					bal = getMBal("dogechain.info", config().dat[i][1][j], '(Balance.*?([\d\.]+).*?DOGE)')
+				p = price().getPriceJSON('DOGE')
+				self.currencies[i]['xsell'] = p
+				self.currencies[i]['xbuy'] = p
+				self.currencies[i]['basecurr'] = 'btc'
+				self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
+
+			# mooncoin balance
+			if i == 'moon':
+				for j in range(0, len(config().dat[i][1])):
+					bal = getMBal("moonchain.info", config().dat[i][1][j], '(Balance.*?([\d\.]+).*?MOON)')
+				p = price().getPriceJSON('MOON')
+				self.currencies[i]['xsell'] = p
+				self.currencies[i]['xbuy'] = p
+				self.currencies[i]['basecurr'] = 'btc'
+				self.currencies[i]['xbasecurr'] = baseTicker['ticker']['sell']
 
 			# bitcoin balance
 			try:
@@ -535,7 +644,10 @@ class btce(broker):
 							print '	'+address[0] + '	' + str(address[1])
 						# if brokerBlockcians has no index config().dat[i][1][j], it throws a ValueError
 						#self.brokerBlockchains[i].index(config().dat[i][1][j])
-						self.currencies[i]['bal'] += bal
+						try:
+							self.currencies[i]['bal'] += bal
+						except:
+							self.currencies[i]['bal'] = bal
 						"""
 						except ValueError, e:
 							# add to balance if config().dat[i][1][j] is not registered in brokerBlockchains
@@ -547,22 +659,25 @@ class btce(broker):
 						"""
 			except TypeError, e:
 				print e
-			
 			try:
-				if type(self.btcBaseCurrencies.index(i)) == type(1):
-					self.currencies[i]['xrate'] = self.currencies[i]['xsell'] * self.currencies[i]['xbasecurr']
-				else:
+				try:
+					if type(self.btcBaseCurrencies.index(i)) == type(1):
+						self.currencies[i]['xrate'] = self.currencies[i]['xsell'] * self.currencies[i]['xbasecurr']
+					else:
+						self.currencies[i]['xrate'] = self.currencies[i]['xsell']
+				except KeyError, e:
 					self.currencies[i]['xrate'] = self.currencies[i]['xsell']
-			except:
-				self.currencies[i]['xrate'] = self.currencies[i]['xsell']
-			self.log('xrate:'+str(self.currencies[i]['xrate']))
-			try:
-				self.log('xbasecurr:'+str(self.currencies[i]['xbasecurr']))
-			except:
-				''
-			
-			self.currencies[i]['usdbal'] = nv(self.currencies[i]['bal'] * self.currencies[i]['xrate'])
-			tusdbal += nv(self.currencies[i]['usdbal'])
+				except:
+					self.currencies[i]['xrate'] = 1
+				self.log('xrate:'+str(self.currencies[i]['xrate']))
+				try:
+					self.log('xbasecurr:'+str(self.currencies[i]['xbasecurr']))
+				except:
+					''
+				self.currencies[i]['usdbal'] = nv(self.currencies[i]['bal'] * self.currencies[i]['xrate'])
+				tusdbal += nv(self.currencies[i]['usdbal'])
+			except KeyError, e:
+				print e
 			
 				
 		# header
