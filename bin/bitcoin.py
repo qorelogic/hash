@@ -76,7 +76,10 @@ class price(object):
 	def getPriceJSON(self, currency):
 		if currency == 'DOGE':
 			jo = self.callAPI('http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=132')
-			return float(jo['return']['markets']['DOGE']['lasttradeprice'])
+			try:
+				return float(jo['return']['markets']['DOGE']['lasttradeprice'])
+			except:
+				return 0
 	
 		if currency == 'MOON':
 			# source; https://gist.github.com/erundook/8377222
