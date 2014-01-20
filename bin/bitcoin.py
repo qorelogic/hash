@@ -67,8 +67,11 @@ class price(object):
 		content = response.read()
 		conn.close()
 		j =  content
-		jo = json.loads(j)
-		return jo
+		try:
+			jo = json.loads(j)
+			return jo
+		except ValueError, e:
+			''
 	
 	def getPriceJSON(self, currency):
 		if currency == 'DOGE':
