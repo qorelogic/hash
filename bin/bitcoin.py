@@ -269,25 +269,33 @@ class broker(object):
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)']
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice']
 		r = asarray(r)
 		# add a column of zeros
 		r = column_stack((r, zeros(shape(r)[0])))
-		#r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
 		
 		mcaps = 0
+		mvolume = 0
 		for i in range(0,len(r)):
 			r[i][2] = n(r[i][2])
 			r[i][5] = n(r[i][5])
 			r[i][7] = n(r[i][7])
 			# calculate total marketcap
 			mcaps += float(r[i][2])
+			mvolume += float(r[i][7])
 			
 		for i in range(0,len(r)):
-			# percentage of total marketcap
+			# MarketCap / Total MarketCap (%)
 			r[i][9] = float(r[i][2])/mcaps*100
-			# % should invest
-			#r[i][10] = ???
+			# Volume / MarketCap (%)
+			r[i][10] = float(r[i][7]) / float(r[i][2]) * 100
+			# % volume to total volume summation
+			r[i][11] = float(r[i][7]) / mvolume * 100
+			# inverse of price
+			r[i][12] = float(1) / float(r[i][4])
 		
 		print r
 		
@@ -330,8 +338,8 @@ class broker(object):
 		#print sum
 		#print b[0:1, : ]
 		
-		status, output = commands.getstatusoutput('ggobi '+fname)
-		doPlot(b)
+		#status, output = commands.getstatusoutput('ggobi '+fname)
+		#doPlot(b)
 		
 		"""
 		a = arange(15).reshape(3,5)
