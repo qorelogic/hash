@@ -271,11 +271,25 @@ class broker(object):
 		b = array([])
 		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)']
 		r = asarray(r)
+		# add a column of zeros
+		r = column_stack((r, zeros(shape(r)[0])))
+		#r = column_stack((r, zeros(shape(r)[0])))
+		
+		mcaps = 0
 		for i in range(0,len(r)):
 			r[i][2] = n(r[i][2])
 			r[i][5] = n(r[i][5])
 			r[i][7] = n(r[i][7])
+			# calculate total marketcap
+			mcaps += float(r[i][2])
+			
+		for i in range(0,len(r)):
+			# percentage of total marketcap
+			r[i][9] = float(r[i][2])/mcaps*100
+			# % should invest
+			#r[i][10] = ???
 		print r
+		
 		#for i in r:
 			#print i
 			#print type(i)
@@ -299,13 +313,13 @@ class broker(object):
 		c1.writerow(header)
 		c1.writerows(r)
 		b1.close()
-		status, output = commands.getstatusoutput('ggobi '+fname)
 		
 		#sum = b.sum(axis=0)
 		#print [sum[1],sum[3]]
 		#print sum
 		#print b[0:1, : ]
 		
+		status, output = commands.getstatusoutput('ggobi '+fname)
 		doPlot(b)
 		
 		"""
