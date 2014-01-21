@@ -288,7 +288,18 @@ class broker(object):
 			r[i][9] = float(r[i][2])/mcaps*100
 			# % should invest
 			#r[i][10] = ???
+		
 		print r
+		
+		# add to the json log file
+		d = {}
+		d['timestamp'] = time.time()
+		d['data'] = r.tolist()
+		j = json.dumps(d)
+		fp = open('bitcoin-analyze.log', 'a')
+		fp.write(j+"\n")
+		fp.close()
+		
 		
 		#for i in r:
 			#print i
