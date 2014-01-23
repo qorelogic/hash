@@ -290,6 +290,7 @@ class broker(object):
 		print res
 		try:
 			self.info = res['return']['funds']
+			return self.info
 		except KeyError, e:
 			err = res['error']
 			if err == 'invalid api key':
@@ -297,10 +298,8 @@ class broker(object):
 				print 'Update the variable: self.api_key with the new key'
 				print 'Update the variable: self.api_secret with the new secret'
 			else:
-				print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'
-			
-		#	sys.exit()
-		return self.info
+				print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'			
+			sys.exit()
 	
 	def analyze(self):
 		
