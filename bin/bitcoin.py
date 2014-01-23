@@ -39,19 +39,18 @@ def nd(n,dec):
 	return float(v)
 
 from urlparse import urlparse
-class price(object):
+
+class api:
 	def __init__(self):
-		#self.getPriceJSON(curr)
-		#print self.marketData()
-		''
+		self.headers = {}
+		self.headers["Content-type"] = "application/x-www-form-urlencoded"
+		self.params = ""
 	
 	def callAPI(self, url):
 		u = urlparse(url)
 		server = u.hostname
 		req = u.path + '?' + u.query
 		#self.getNonce()
-		headers = {"Content-type": "application/x-www-form-urlencoded"}
-		params = ""
 		if u.scheme == 'http':
 			conn = httplib.HTTPConnection(server)
 		if u.scheme == 'https':
@@ -62,7 +61,7 @@ class price(object):
 		#print params
 		#print headers
 		#print server
-		conn.request("GET", req, params, headers)
+		conn.request("GET", req, self.params, self.headers)
 		response = conn.getresponse()
 		content = response.read()
 		conn.close()
@@ -73,9 +72,21 @@ class price(object):
 		except ValueError, e:
 			''
 	
+	def setHeaders(self, headers):
+		self.headers = headers
+	
+
+class price(object):
+	def __init__(self):
+		#self.getPriceJSON(curr)
+		#print self.marketData()
+		''
+		#self.api = api()
+	
 	def getPriceJSON(self, currency):
+		self.api = api()
 		if currency == 'DOGE':
-			jo = self.callAPI('http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=132')
+			jo = self.api.callAPI('http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=132')
 			try:
 				return float(jo['return']['markets']['DOGE']['lasttradeprice'])
 			except:
@@ -83,7 +94,7 @@ class price(object):
 	
 		if currency == 'MOON':
 			# source; https://gist.github.com/erundook/8377222
-			jo = self.callAPI('https://coinex.pw/api/v2/trade_pairs')
+			jo = self.api.callAPI('https://coinex.pw/api/v2/trade_pairs')
 			
 			for i in jo['trade_pairs']:
 				if i['url_slug'] == 'moon_btc':
@@ -98,9 +109,70 @@ class price(object):
 			print self.markets[i]['marketid']
 
 class coinexPw(object):
+	"""
 	def __init__(self):
 		# mining info: https://coinex.pw/api/v2/currencies	
 		''
+	"""
+	def getMarketData(self):
+		d = api().callAPI('https://coinex.pw/api/v2/trade_pairs')
+		self.markets = d
+		return self.markets
+		
+	def getPrice(self, id):
+		self.getMarketData()
+		pair = id.lower()+'_btc'
+		#for i in self.markets['trade_pairs']:
+		#	if i['id'] == id:
+		#		print i
+		#		print i['url_slug']
+		#print self.markets['trade_pairs']
+		for i in self.markets['trade_pairs']:
+			if i['url_slug'] == pair:
+				#print i
+				return float(i['last_price'] * pow(10,-8))
+		
+	
+	def getBalances(self):
+		self.api_key = '317bca8e06c57bb892d72a5f7c860d52cfcc8053c6594a782c72bcaad388e32c'
+		self.api_secret = '191bac48d7545435f5367d9dfd30d70c64fca38059615fe21bb6a1e03c523135'		
+		
+		# Hash the params string to produce the Sign header value
+		H = hmac.new(self.api_secret, digestmod=hashlib.sha512)
+		#H.update(self.params)
+		self.sign = H.hexdigest()
+		headers = {"Content-type": "application/x-www-form-urlencoded",
+				   "API-Key":self.api_key,
+				   "API-Sign":self.sign}
+		#print headers		
+		a = api()
+		a.setHeaders(headers)
+		j = a.callAPI('https://coinex.pw/api/v2/balances')
+		#print j
+		balances = {}
+		total_btc = 0
+		for i in j['balances']:
+			#print i
+			amount = float(i['amount']) / pow(10,8)
+			#print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount)
+			#print price().getPriceJSON('MOON')
+			rate =  self.getPrice(i['currency_name'])
+			#print rate
+			try:
+				bal = amount * rate				
+				print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount) + '\t' + str(bal)
+				balances[i['currency_name']] = {}
+				balances[i['currency_name']]['currency_id'] = i['currency_id']
+				balances[i['currency_name']]['amount'] = amount
+				balances[i['currency_name']]['balance'] = bal
+				total_btc += bal				
+			except:
+				''
+		#print j['balances']
+		print balances
+		total_usd = total_btc * 870
+		return {'balances':balances,'total_btc':total_btc, 'total_usd':total_usd}
+			
 
 class broker(object):
 	def __init__(self, api_key, api_secret):
