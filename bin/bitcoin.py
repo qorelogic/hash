@@ -151,6 +151,7 @@ class coinexPw(object):
 		#print j
 		balances = {}
 		total_btc = 0
+		xbtcusd = 870
 		for i in j['balances']:
 			#print i
 			amount = float(i['amount']) / pow(10,8)
@@ -159,8 +160,9 @@ class coinexPw(object):
 			rate =  self.getPrice(i['currency_name'])
 			#print rate
 			try:
-				bal = amount * rate				
-				print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount) + '\t' + str(bal)
+				bal = amount * rate
+				usdbal = bal * xbtcusd
+				print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount) + '\t' + str(bal) + '\t' + str(usdbal)
 				balances[i['currency_name']] = {}
 				balances[i['currency_name']]['currency_id'] = i['currency_id']
 				balances[i['currency_name']]['amount'] = amount
@@ -170,8 +172,8 @@ class coinexPw(object):
 				''
 		#print j['balances']
 		print balances
-		total_usd = total_btc * 870
-		return {'balances':balances,'total_btc':total_btc, 'total_usd':total_usd}
+		total_usd = total_btc * xbtcusd
+		print {'balances':balances,'total_btc':total_btc, 'total_usd':total_usd}
 			
 
 class broker(object):
