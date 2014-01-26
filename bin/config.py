@@ -37,5 +37,3 @@ class config:
 		self.tdat = 0
 		for i in self.dat:
 			self.tdat += self.dat[i][0]
-	
-
