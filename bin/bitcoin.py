@@ -854,7 +854,10 @@ class btce(broker):
 					#print  ""
 				if self.currencies[i]['usdbal'] <= usdbalshould:
 					self.currencies[i]['increase'] = usdbalshould - self.currencies[i]['usdbal']
-					self.currencies[i]['increase_amount'] = self.currencies[i]['increase'] / self.currencies[i]['xrate']
+					try:
+						self.currencies[i]['increase_amount'] = self.currencies[i]['increase'] / self.currencies[i]['xrate']
+					except:
+						self.currencies[i]['increase_amount'] = 0
 					print  '\t+',
 					print string.zfill('%.2f' % (self.currencies[i]['increase_amount']), 5),
 					print ' ' + str(i) + "\t[USD",
