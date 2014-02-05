@@ -24,6 +24,13 @@ from numpy import *
 import pylab
 import matplotlib.pyplot as pyplot
 
+# sudo apt-get install python-pip
+# sudo apt-get install python-reportlab
+from qrtools import *
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+
 def nv(n):
 	#return type(n)
 	#if n != '':
@@ -1108,3 +1115,17 @@ class btce(broker):
 							''
 			except:
 				''
+				
+	def qrcode(self):
+		m = QR(data="test123")
+		m.encode()
+		print m.filename
+		
+		pdffile = 'receipt.pdf'
+		filename = m.filename
+		
+		c = canvas.Canvas(pdffile, pagesize=letter)
+		width, height = letter
+		c.drawImage(filename, inch, height - 2 * inch) # Who needs consistency?
+		c.showPage()
+		c.save()
