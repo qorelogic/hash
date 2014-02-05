@@ -1117,9 +1117,12 @@ class btce(broker):
 				''
 				
 	def qrcode(self):
-		m = QR(data="test123")
+		import time
+		qrdata = {'credit':10000, 'timestamp':time.time(), 'operation':'buy', 'coin':'bitcoin'}
+		jdata = json.dumps(qrdata)
+		m = QR(data=jdata)
 		m.encode()
-		print m.filename
+		#print m.filename
 		
 		pdffile = 'receipt.pdf'
 		filename = m.filename
@@ -1129,3 +1132,129 @@ class btce(broker):
 		c.drawImage(filename, inch, height - 2 * inch) # Who needs consistency?
 		c.showPage()
 		c.save()
+
+		import smtplib
+		from email.MIMEMultipart import MIMEMultipart
+		from email.MIMEBase import MIMEBase
+		from email import Encoders
+
+		SUBJECT = "Email Data"
+		
+		EMAIL_TO = 'kiizaa@gmail.com'
+		EMAIL_FROM = 'noreply@qore.in'
+		
+		#EMAIL_SERVER = 'smtp.o2.co.uk'
+		EMAIL_SERVER = 'pop3.btconnect.com'
+		
+		msg = MIMEMultipart()
+		msg['Subject'] = SUBJECT 
+		msg['From'] = EMAIL_FROM
+		msg['To'] = ', '.join(EMAIL_TO)
+
+		part = MIMEBase('application', "octet-stream")
+		part.set_payload(open(pdffile, "rb").read())
+		Encoders.encode_base64(part)
+
+		part.add_header('Content-Disposition', 'attachment; filename="'+pdffile+'"')
+
+		msg.attach(part)
+
+		smtps = """
+193.124.32.156
+193.232.8.10
+193.232.8.11
+193.232.8.12
+193.232.8.17
+193.232.8.31
+193.232.8.33
+193.232.8.39 
+193.232.8.62 
+194.3.104.201 
+194.3.104.201 
+194.85.159.2 
+195.16.123.1
+195.16.123.255
+195.161.5.21
+195.161.5.3
+195.161.5.42
+195.161.5.8
+195.208.253.1
+195.208.253.2
+195.208.253.3
+195.208.253.8
+asylum.mailcom.com
+baku-az.net
+dorian.comtel.ru
+mail.asn-linz.ac.at
+mail.cablenet-va.com
+mail.cccis.ro
+mail.compuserve.com
+mail.isp.net
+mail.pip.com.au
+"""
+		"""
+		#print smtps
+		#print dir(smtps)
+		smtps = smtps.split()
+		for i in smtps:
+			print i
+			server = smtplib.SMTP(i)
+			server.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+		"""
+
+		"""
+		import Queue
+		import threading
+		import urllib2
+
+		# called by each thread
+		def get_url(q, url):
+		    #q.put(urllib2.urlopen(url).read())
+		    print url
+		    return
+
+		theurls = '''http://google.com http://yahoo.com'''.split()
+
+		q = Queue.Queue()
+
+		for u in theurls:
+		    print u
+		    t = threading.Thread(target=get_url, args = (q,u))
+		    t.daemon = True
+		    t.start()
+
+		s = q.get()
+		print s
+		"""
+		
+		import sys, time
+		import threading
+		import Queue # thread-safe
+
+		class CleanExit:
+			pass
+
+		ipq = Queue.Queue()
+
+		def testexit(ipq, ip):
+			print "Working..."+ip
+			server = smtplib.SMTP(ip)
+			server.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+			time.sleep(3)
+			ipq.put(CleanExit)
+			return
+
+		#for i in range(1, 9):
+		for i in smtps.split():
+			threading.Thread(target=testexit, args=(ipq,i)).start()
+			"""
+			while True:
+				#print "Working..."
+				time.sleep(1)
+				try:
+					if ipq.get_nowait() == CleanExit:
+						sys.exit()
+				except Queue.Empty:
+					pass
+			"""
+				
