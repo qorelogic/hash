@@ -2,10 +2,34 @@
 
 from keys import *
 
+import web
+
+urls = (
+	'/', 'index'
+)
+
+class index:
+	def GET(self):
+		ob = 'test'
+		b.analyze()
+		return ob
+		
 if __name__ == '__main__':
+	
+#	try:
+#		if sys.argv[1] == 'web':
+	app = web.application(urls, globals())
+	app.run()
+	#sys.exit()
+#	except:
+#		''
+		
 	try:
 		if sys.argv[1] == 'main':
 			b.main()
+		if sys.argv[1] == 'web':
+			#b.web()
+			''
 		if sys.argv[1] == 'rebalance':
 			b.rebalanceCurrencies()
 		if sys.argv[1] == 'liquidate':
