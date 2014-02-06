@@ -1117,15 +1117,81 @@ class btce(broker):
 				''
 				
 	def qrcode(self):
-		m = QR(data="test123")
-		m.encode()
-		print m.filename
+		mydata = ["http://www.qore.in", 10000, 'ARS', time.time()]
+		js = json.dumps(mydata)
 		
-		pdffile = 'receipt.pdf'
-		filename = m.filename
+		def getTime(mydata):
+			dd = time.gmtime(float(mydata['data'][3]))
+			dt = str(dd[0])+'-'+str(dd[1])+'-'+str(dd[2])+' '+str(dd[3])+':'+str(dd[4])+':'+str(dd[5])
+			return dt
+			
+		def makePdf(mydata):
+			import hashlib as h
+			sha_id = h.sha256(str(mydata['id'])).hexdigest()
+			mydata['data'][0] = mydata['data'][0]+'/'+sha_id
+			md = mydata['data']
+			manifest = md[2]+' '+str(md[1])+"\n"+getTime(mydata)+"\n\n"+md[0]
+			m = QR(data=manifest)
+			m.encode()
+			pdffile = 'receipt.pdf'
+			filename = m.filename
+			
+			# setup the canvas
+			c = canvas.Canvas(pdffile)
+			#c = canvas.Canvas(pdffile, pagesize=letter)
+			#width, height = letter
+			
+			top = 50
+			left = 20
+			linesize = 12
+			#c.drawString(left, (top - linesize * 0), 'id: '+str(mydata['id']))
+			c.drawString(left, (180), 'qoreInvestments')
+			c.drawString(left, (top - linesize * 1), 'currency: '+str(mydata['data'][2]))
+			c.drawString(left, (top - linesize * 2), 'amount: '+str(mydata['data'][1]))
+			dt = getTime(mydata)
+			c.drawString(left, (top - linesize * 3), 'time: '+dt)
+			c.drawImage(filename, 10, top, width=125, height=125)
+			c.setPageSize((150, 200))
+			c.showPage()
+			c.save()
+			
+			return mydata
 		
-		c = canvas.Canvas(pdffile, pagesize=letter)
-		width, height = letter
-		c.drawImage(filename, inch, height - 2 * inch) # Who needs consistency?
-		c.showPage()
-		c.save()
+		import sqlite3 as s
+		def update(mydata):
+			c = s.Connection('./db/hash.sqlite')
+			#print mydata
+			c.execute("update test2 set data = '"+json.dumps(mydata)+"' where id = '"+str(mydata['id'])+"';")
+			c.commit()
+			"""
+			cu = c.execute('select * from test2;')
+			res = cu.fetchall()
+			print res
+			"""
+			
+		def insert(mydata):
+			# insert data into sqlite db
+			c = s.Connection('./db/hash.sqlite')
+			try:
+				cu = c.execute('create table test2(id INTEGER PRIMARY KEY, data TEXT);')
+			except s.OperationalError, e:
+				''
+				#print e
+			
+			ins = c.execute("insert into test2 (id,data) values (NULL,'"+json.dumps(mydata)+"');")
+			
+			#print ins
+			#print dir(ins)
+			c.commit()
+			
+			"""
+			cu = c.execute('select * from test2;')
+			res = cu.fetchall()
+			print res
+			"""
+			
+			return {'id':ins.lastrowid, 'data':mydata}
+		
+		mydata = insert(mydata)
+		mydata = makePdf(mydata)
+		update(mydata)
