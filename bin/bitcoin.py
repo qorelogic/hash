@@ -1115,9 +1115,12 @@ class btce(broker):
 							''
 			except:
 				''
+	
+	def newDeposit(self, amount, currency):
+		mydata = ["http://www.qore.in", amount, currency, time.time()]
+		self.qrcode(mydata)
 				
-	def qrcode(self):
-		mydata = ["http://www.qore.in", 10000, 'ARS', time.time()]
+	def qrcode(self, mydata):
 		js = json.dumps(mydata)
 		
 		def getTime(mydata):

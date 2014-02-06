@@ -62,10 +62,10 @@ if __name__ == '__main__':
 			#print price().getPriceJSON('DOGE')
 			#print price().getPriceJSON('MOON')
 			print coinexPw().getBalances()
-		if sys.argv[1] == 'qrcode':
-			b.qrcode()
+		if sys.argv[1] == 'newdeposit':
+			b.newDeposit(1000, 'ARS')
 			
 	except IndexError, e:
-		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | qrcode >'
+		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | newdeposit >'
 
 #o = LocalBitcoinsAPI()
