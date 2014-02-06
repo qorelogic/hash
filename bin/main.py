@@ -3,6 +3,7 @@
 from keys import *
 
 if __name__ == '__main__':
+	
 	try:
 		if sys.argv[1] == 'main':
 			b.main()
