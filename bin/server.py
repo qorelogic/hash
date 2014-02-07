@@ -9,7 +9,7 @@ urls = (
 
 class index:
 	def GET(self):
-		b.analyze()
+		#b.analyze()
 		render = web.template.render('templates-webpy')
 		qwe = 'test'
 		return render.index(qwe)
