@@ -398,7 +398,7 @@ class broker(object):
 		#print b
 		
 		import csv
-		fname = 'output-lynx.csv'
+		fname = 'output-lynx-'+str(d['timestamp'])+'.csv'
 		b1 = open(fname,'w')
 		c1 = csv.writer(b1)
 		#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
@@ -425,6 +425,8 @@ class broker(object):
 		a = vstack([2])
 		print a
 		"""
+		# return r for server.py pre-processor
+		return r.tolist()
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):

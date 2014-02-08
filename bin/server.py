@@ -9,10 +9,9 @@ urls = (
 
 class index:
 	def GET(self):
-		#b.analyze()
+		r = b.analyze()
 		render = web.template.render('templates-webpy')
-		qwe = 'test'
-		return render.index(qwe)
+		return render.index(r)
 		
 if __name__ == '__main__':
 	app = web.application(urls, globals())
