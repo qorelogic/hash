@@ -35,13 +35,19 @@ $def with (r)
 		data.addColumn('number', 'Volume/MarketCap(%)');
 		data.addColumn('number', 'Volume/TotalVolume(%)');
 		data.addColumn('number', 'InversePrice');
+
+		data.addColumn('number', 'Supply/Total MarketCap(%) Volume');
+		data.addColumn('number', 'Supply/MarketCap(%)');
+		data.addColumn('number', 'Supply/TotalVolume(%)');
 		var myr = [
 		$for i in r:
-			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12]],
+			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15]],
+			//['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15]],
+			//['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15]],
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div'));
-		chart.draw(data, {width: 600, height:300});
+		chart.draw(data, {width: 1100, height:800});
 	}
     </script>
 </head>
