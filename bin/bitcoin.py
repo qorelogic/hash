@@ -342,10 +342,14 @@ class broker(object):
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice']
-		r = asarray(r)
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)']
+		
 		# add a column of zeros
 		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
@@ -370,7 +374,14 @@ class broker(object):
 			# inverse of price
 			r[i][12] = float(1) / float(r[i][4])
 		
-		print r
+			# Supply / Total MarketCap (%)
+			r[i][13] = float(r[i][5])/mcaps*100
+			# Supply / MarketCap (%)
+			r[i][14] = float(r[i][5]) / float(r[i][2]) * 100
+			# Supply / total volume summation
+			r[i][15] = float(r[i][5]) / mvolume * 100
+		
+		print r.tolist()
 		
 		# add to the json log file
 		d = {}
