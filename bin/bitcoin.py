@@ -300,14 +300,16 @@ class broker(object):
 				print 'Update the variable: self.api_key with the new key'
 				print 'Update the variable: self.api_secret with the new secret'
 			else:
-				print 'The nonce on server is invalid, rest the nonce by genereating new API keys.'			
+				print 'The nonce on server is invalid, reset the nonce by genereating new API keys.'			
 			sys.exit()
 	
 	def analyze(self):
 		
 		def n(a):
 			try:
-				n = re.sub(r',', '', a)
+				n = re.sub(r',', '', a) # strip commas
+				n = re.sub(r'[+]', '', n) # strip polarity signs
+				#print str(a)+'\t'+str(n)
 				n = float(n)
 				return n
 			except:
@@ -336,8 +338,12 @@ class broker(object):
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
 		
-		c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
-		#c = 'cat output-lynx.txt'
+		test = 0
+		
+		if test == 0:
+			c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
+		else:
+			c = 'cat output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
@@ -353,9 +359,11 @@ class broker(object):
 		mcaps = 0
 		mvolume = 0
 		for i in range(0,len(r)):
+			#print r[i][1]
 			r[i][2] = n(r[i][2])
 			r[i][5] = n(r[i][5])
 			r[i][7] = n(r[i][7])
+			r[i][8] = n(r[i][8])
 			# calculate total marketcap
 			mcaps += float(r[i][2])
 			mvolume += float(r[i][7])
@@ -378,7 +386,8 @@ class broker(object):
 		d['data'] = r.tolist()
 		j = json.dumps(d)
 		fp = open('bitcoin-analyze.log', 'a')
-		fp.write(j+"\n")
+		if test == 0:
+			fp.write(j+"\n")
 		fp.close()
 		
 		
@@ -397,8 +406,10 @@ class broker(object):
 		#b = b.reshape((b.shape[0]/6), 6)
 		#print b
 		
+		# create csv file
 		import csv
-		fname = 'output-lynx.csv'
+		t23 = time.time()
+		fname = 'output-lynx-'+str(t23)+'.csv'
 		b1 = open(fname,'w')
 		c1 = csv.writer(b1)
 		#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
