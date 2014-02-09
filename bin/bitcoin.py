@@ -342,9 +342,10 @@ class broker(object):
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice']
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice','Supply / Total MarketCap (%)']
 		r = asarray(r)
 		# add a column of zeros
+		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
@@ -369,6 +370,8 @@ class broker(object):
 			r[i][11] = float(r[i][7]) / mvolume * 100
 			# inverse of price
 			r[i][12] = float(1) / float(r[i][4])
+			# Supply / Total MarketCap (%)
+			r[i][13] = float(r[i][5])/mcaps*100
 		
 		print r
 		
