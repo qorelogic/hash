@@ -348,10 +348,15 @@ class broker(object):
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice']
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)']
 		r = asarray(r)
 		# add a column of zeros
 		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
@@ -377,8 +382,17 @@ class broker(object):
 			r[i][11] = float(r[i][7]) / mvolume * 100
 			# inverse of price
 			r[i][12] = float(1) / float(r[i][4])
+			# Supply / Total MarketCap (%)
+			r[i][13] = float(r[i][5])/mcaps*100
 		
-		print r
+			# Supply / Total MarketCap (%)
+			r[i][13] = float(r[i][5])/mcaps*100
+			# Supply / MarketCap (%)
+			r[i][14] = float(r[i][5]) / float(r[i][2]) * 100
+			# Supply / total volume summation
+			r[i][15] = float(r[i][5]) / mvolume * 100
+		
+		print r.tolist()
 		
 		# add to the json log file
 		d = {}
@@ -408,8 +422,7 @@ class broker(object):
 		
 		# create csv file
 		import csv
-		t23 = time.time()
-		fname = 'output-lynx-'+str(t23)+'.csv'
+		fname = 'output-lynx-'+str(d['timestamp'])+'.csv'
 		b1 = open(fname,'w')
 		c1 = csv.writer(b1)
 		#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
@@ -436,6 +449,41 @@ class broker(object):
 		a = vstack([2])
 		print a
 		"""
+		# return r for server.py pre-processor
+		return r.tolist()
+		
+	def coinwarz(self):
+		import  json
+		base = 'http://www.coinwarz.com'
+		u = 'http://www.coinwarz.com/difficulty-charts/ronpaulcoin-difficulty-chart'
+		c = "lynx -source '"+u+"' | grep JSON"
+		status, output = commands.getstatusoutput(c)
+		u = re.sub(re.compile(r'.*?JSON\(\'(.*=[\d]+).*', re.S),'\\1',output)
+		u = base + u
+		c = "lynx -source '"+u+"'"
+		status, output = commands.getstatusoutput(c)
+		"""
+		fp = open('coinwarz.json', 'r')
+		output = fp.read()
+		"""
+		output = json.loads(output)
+		rlist = []
+		for i in output:
+			print i
+			
+			ts = i[0]
+			
+			ts = float(ts)/1000
+			
+			#print i[1]
+			jsdate = time.strftime("new Date (%Y,%m,%d, %H, %I, %S)", time.localtime(ts))
+			pr = i[1]
+			#print time.gmtime(ts)
+			rlist.append([jsdate, pr])
+		print rlist
+		return rlist
+		#print output
+	#	#
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):
