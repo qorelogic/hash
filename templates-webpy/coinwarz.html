@@ -1,0 +1,26 @@
+$def with (r)
+<html>
+<head>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {'packages':['motionchart']});
+      google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Coin');
+		data.addColumn('date', 'Date');
+		data.addColumn('number', 'Price');
+		var myr = [
+		$for i in r:
+			['test',$i[0],$i[1]],
+		]
+		data.addRows(myr);
+		var chart = new google.visualization.MotionChart(document.getElementById('chart_div'));
+		chart.draw(data, {width: 1100, height:800});
+	}
+    </script>
+</head>
+<body>
+<div id="chart_div" style="width: 400px; height: 200px;"></div>
+</body>
+</html>
