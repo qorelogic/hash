@@ -47,13 +47,27 @@ $def with (r)
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div'));
-		chart.draw(data, {width: 1100, height:800});
+		var options = {width: 1100, height:800};
+		
+		//
+		options['state'] = '{"xZoomedDataMin":0.00197796885532,"iconKeySettings":[],"xZoomedIn":false,"sizeOption":"9","yZoomedIn":false,"xLambda":0,"colorOption":"7","xAxisOption":"9","xZoomedDataMax":15.3622395121,"showTrails":true,"iconType":"BUBBLE","duration":{"timeUnit":"D","multiplier":1},"orderedByX":false,"uniColorForNonSelected":false,"yZoomedDataMin":-37.87,"playDuration":15000,"time":"1988","nonSelectedAlpha":0.4,"orderedByY":false,"yAxisOption":"7","dimensions":{"iconDimensions":["dim0"]},"yLambda":0,"yZoomedDataMax":203.38};';
+		// 
+		//options['state'] = '{"orderedByY":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"showTrails":true,"xZoomedDataMin":0.006671138615,"orderedByX":false,"playDuration":15000,"sizeOption":"9","iconKeySettings":[],"yAxisOption":"10","colorOption":"7","yZoomedIn":false,"yZoomedDataMax":72.1628250096,"uniColorForNonSelected":false,"iconType":"BUBBLE","xZoomedIn":false,"xLambda":0,"time":"1988","yZoomedDataMin":0.000323144645345,"xZoomedDataMax":15.8284275832,"dimensions":{"iconDimensions":["dim0"]},"xAxisOption":"9","nonSelectedAlpha":0.4};';
+		// % change vs. vol/marcetcap%
+		//options['state'] = '{"uniColorForNonSelected":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"dimensions":{"iconDimensions":["dim0"]},"showTrails":true,"xZoomedDataMin":0.00667869159671,"yAxisOption":"7","playDuration":15000,"sizeOption":"9","xZoomedIn":false,"xLambda":0,"colorOption":"7","nonSelectedAlpha":0.4,"xAxisOption":"9","xZoomedDataMax":15.8297752214,"iconType":"BUBBLE","iconKeySettings":[],"time":"1988","yZoomedIn":false,"yZoomedDataMax":32.09,"orderedByY":false,"orderedByX":false,"yZoomedDataMin":-38.08}';
+		
+		chart.draw(data, options);
+		
 	}
     </script>
+<!--
+<script src="http://code.jquery.com/jquery-1.10.1.min.js">
+-->
 </head>
 <body>
-<div id="chart_div" style="width: 600px; height: 200px;"></div>
-<pre>
+<input type="button" value="Update" onclick="alert('test')">
+<div id="chart_div" style="width: 600px; height: 300px;"></div>
+<pre style="position:relative; top:491px;">
 $for i in r:
 	$i
 </pre>
