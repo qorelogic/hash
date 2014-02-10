@@ -309,7 +309,7 @@ class broker(object):
 			try:
 				n = re.sub(r',', '', a) # strip commas
 				n = re.sub(r'[+]', '', n) # strip polarity signs
-				#print str(a)+'\t'+str(n)
+				print str(a)+'\t'+str(n)
 				n = float(n)
 				return n
 			except:
@@ -343,8 +343,9 @@ class broker(object):
 		else:
 			c = 'cat output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
-		#			    #                  name                       marketcap                      price                      total supply                 
-		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.\,e-]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
+		print output
+		#			    #                  name                       marketcap                      price                      total supply   ticker             volume               % Change              
+		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.\,e-]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\-\d\.\,\+]+).*', output)
 		
 		b = array([])
 		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)']
@@ -367,6 +368,7 @@ class broker(object):
 			#print r[i][1]
 			#print r[i][4]
 			r[i][2] = n(r[i][2])
+			r[i][4] = n(r[i][4])
 			r[i][5] = n(r[i][5])
 			r[i][7] = n(r[i][7])
 			r[i][8] = n(r[i][8])

@@ -57,7 +57,7 @@ if __name__ == '__main__':
 			#c.check()			
 			#print c.getInfo()
 		if sys.argv[1] == 'analyze':
-			b.analyze(True, False)
+			b.analyze(True, True)
 		if sys.argv[1] == 'analyze-live':
 			b.analyze(True, False)
 		if sys.argv[1] == 'analyze-dryrun':
