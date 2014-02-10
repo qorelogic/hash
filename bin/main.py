@@ -68,7 +68,8 @@ if __name__ == '__main__':
 			#print price().getPriceJSON('MOON')
 			print coinexPw().getBalances()
 		if sys.argv[1] == 'test3':
-			b.coinwarz()
+			#b.coinwarz()
+			b.analyzeReader()
 			
 	except IndexError, e:
 		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun >'

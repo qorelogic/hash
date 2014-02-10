@@ -492,6 +492,61 @@ class broker(object):
 		return rlist
 		#print output
 	#	#
+	
+	def analyzeReader(self):
+		# insert data into sqlite db
+		import sqlite3 as s
+		c = s.Connection('./db/hash.sqlite')
+		
+		"""
+		try:
+			c.execute("drop table cryptocoins;")
+		except s.OperationalError, e:
+			''
+		"""
+		try:
+			cu = c.execute('create table cryptocoins(timestamp DOUBLE, coin TEXT, marketcap DOUBLE, price DOUBLE, supply DOUBLE, unit TEXT, volume DOUBLE, change24hr DOUBLE, mtm DOUBLE, vm DOUBLE, vtv DOUBLE, inversePrice DOUBLE);')
+		except s.OperationalError, e:
+			''
+			print e
+		
+		cmd = "ls output-lynx-*.csv"
+		status, output = commands.getstatusoutput(cmd)
+		fz = output.split()
+		for i in fz:
+			print i
+			ts = re.sub(re.compile(r'.*-([\d\.]+)\..*', re.S), '\\1', i)
+			fp = open(i, 'r')
+			output = fp.read()
+			co = output.split("\r\n")
+			for j in co:
+				try:
+					jsp = j.split(',')
+					#print jsp
+					jsp.pop(0)
+					jsp.insert(0, ts)
+					jsp.pop(3)
+					print jsp
+					#ins = c.execute("insert into cryptocoins (id,data) values (NULL,'"+json.dumps(mydata)+"');")
+					
+					#ins = c.execute("insert into cryptocoins (timestamp,coin,marketcap) values ('"+ts+"','"+jsp[1]+"','"+jsp[2]+"');")
+					ins = c.execute("insert into cryptocoins values (?,?,?,?,?,?,?,?,?,?,?,?)", jsp)
+					#print ins
+					#print dir(ins)
+					c.commit()
+				except IndexError, e:
+					print e
+			fp.close()
+			#sys.exit()
+			time.sleep(1)
+
+			"""
+			cu = c.execute('select * from test2;')
+			res = cu.fetchall()
+			print res
+			"""
+		c.close()
+
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):

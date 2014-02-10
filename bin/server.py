@@ -6,6 +6,7 @@ from keys import *
 urls = (
 	'/', 'index',
 	'/coinwarz', 'coinwarz',
+	'/', 'analyzedb'
 )
 
 class index:
@@ -19,6 +20,12 @@ class coinwarz:
 		r = b.coinwarz()
 		render = web.template.render('templates-webpy')
 		return render.coinwarz(r)
+
+class analyzedb:
+	def GET(self):
+		r = b.analyzeReader()
+		render = web.template.render('templates-webpy')
+		return render.analyzedb(r)
 		
 if __name__ == '__main__':
 	app = web.application(urls, globals())
