@@ -303,7 +303,7 @@ class broker(object):
 				print 'The nonce on server is invalid, reset the nonce by genereating new API keys.'			
 			sys.exit()
 	
-	def analyze(self):
+	def analyze(self, livedata=True, savelog = False):
 		
 		def n(a):
 			try:
@@ -338,9 +338,7 @@ class broker(object):
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
 		
-		test = 0
-		
-		if test == 0:
+		if livedata == 0:
 			c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
 		else:
 			c = 'cat output-lynx.txt'
@@ -400,7 +398,7 @@ class broker(object):
 		d['data'] = r.tolist()
 		j = json.dumps(d)
 		fp = open('bitcoin-analyze.log', 'a')
-		if test == 0:
+		if savelog == 0:
 			fp.write(j+"\n")
 		fp.close()
 		
@@ -421,14 +419,15 @@ class broker(object):
 		#print b
 		
 		# create csv file
-		import csv
-		fname = 'output-lynx-'+str(d['timestamp'])+'.csv'
-		b1 = open(fname,'w')
-		c1 = csv.writer(b1)
-		#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
-		c1.writerow(header)
-		c1.writerows(r)
-		b1.close()
+		if savelog:
+			import csv
+			fname = 'output-lynx-'+str(d['timestamp'])+'.csv'
+			b1 = open(fname,'w')
+			c1 = csv.writer(b1)
+			#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
+			c1.writerow(header)
+			c1.writerows(r)
+			b1.close()
 		
 		#sum = b.sum(axis=0)
 		#print [sum[1],sum[3]]

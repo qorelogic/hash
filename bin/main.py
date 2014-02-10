@@ -57,7 +57,7 @@ if __name__ == '__main__':
 			#c.check()			
 			#print c.getInfo()
 		if sys.argv[1] == 'analyze':
-			b.analyze()
+			b.analyze(True, False)
 		if sys.argv[1] == 'test2':
 			#print b.getBlockChains('dogechain.info','/address/DBHAPfBRc7L7WTcr2Cnf6tfvTRtdKEpnkF','(Balance.*?([\d\.]+).*?DOGE)')
 			#print price().getPriceJSON('DOGE')
