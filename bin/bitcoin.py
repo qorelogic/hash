@@ -441,6 +441,39 @@ class broker(object):
 		"""
 		# return r for server.py pre-processor
 		return r.tolist()
+		
+	def coinwarz(self):
+		import  json
+		base = 'http://www.coinwarz.com'
+		u = 'http://www.coinwarz.com/difficulty-charts/ronpaulcoin-difficulty-chart'
+		c = "lynx -source '"+u+"' | grep JSON"
+		status, output = commands.getstatusoutput(c)
+		u = re.sub(re.compile(r'.*?JSON\(\'(.*=[\d]+).*', re.S),'\\1',output)
+		u = base + u
+		c = "lynx -source '"+u+"'"
+		status, output = commands.getstatusoutput(c)
+		"""
+		fp = open('coinwarz.json', 'r')
+		output = fp.read()
+		"""
+		output = json.loads(output)
+		rlist = []
+		for i in output:
+			print i
+			
+			ts = i[0]
+			
+			ts = float(ts)/1000
+			
+			#print i[1]
+			jsdate = time.strftime("new Date (%Y,%m,%d, %H, %I, %S)", time.localtime(ts))
+			pr = i[1]
+			#print time.gmtime(ts)
+			rlist.append([jsdate, pr])
+		print rlist
+		return rlist
+		#print output
+	#	#
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):
