@@ -343,7 +343,8 @@ class broker(object):
 		else:
 			c = 'cat output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
-		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
+		#			    #                  name                       marketcap                      price                      total supply                 
+		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.\,e-]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\d\.\,\+]+).*', output)
 		
 		b = array([])
 		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)']
@@ -362,7 +363,9 @@ class broker(object):
 		mcaps = 0
 		mvolume = 0
 		for i in range(0,len(r)):
+			#print r[i]
 			#print r[i][1]
+			#print r[i][4]
 			r[i][2] = n(r[i][2])
 			r[i][5] = n(r[i][5])
 			r[i][7] = n(r[i][7])
@@ -390,6 +393,8 @@ class broker(object):
 			# Supply / total volume summation
 			r[i][15] = float(r[i][5]) / mvolume * 100
 		
+			#print r[i][1]
+			#print r[i][4]
 		li = r.tolist()
 		for i in li:
 			print i
