@@ -338,7 +338,7 @@ class broker(object):
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
 		
-		if livedata == 0:
+		if livedata:
 			c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
 		else:
 			c = 'cat output-lynx.txt'
@@ -390,7 +390,9 @@ class broker(object):
 			# Supply / total volume summation
 			r[i][15] = float(r[i][5]) / mvolume * 100
 		
-		print r.tolist()
+		li = r.tolist()
+		for i in li:
+			print i
 		
 		# add to the json log file
 		d = {}
