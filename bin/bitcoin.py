@@ -359,7 +359,7 @@ class broker(object):
 		
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
-		r = column_stack((r, zeros(shape(r)[0])))
+		#r = column_stack((r, zeros(shape(r)[0])))
 		
 		mcaps = 0
 		mvolume = 0
@@ -438,6 +438,8 @@ class broker(object):
 			c1.writerows(r)
 			b1.close()
 		
+		self.insertOutput(fname)
+		
 		#sum = b.sum(axis=0)
 		#print [sum[1],sum[3]]
 		#print sum
@@ -493,10 +495,11 @@ class broker(object):
 		#print output
 	#	#
 	
-	def analyzeReader(self):
+	def insertOutput(self, output, c = False):
 		# insert data into sqlite db
-		import sqlite3 as s
-		c = s.Connection('./db/hash.sqlite')
+		if c == False:
+			import sqlite3 as s
+			c = s.Connection('./db/hash.sqlite')
 		
 		"""
 		try:
@@ -505,13 +508,11 @@ class broker(object):
 			''
 		"""
 		try:
-			cu = c.execute('create table cryptocoins(timestamp DOUBLE, coin TEXT, marketcap DOUBLE, price DOUBLE, supply DOUBLE, unit TEXT, volume DOUBLE, change24hr DOUBLE, mtm DOUBLE, vm DOUBLE, vtv DOUBLE, inversePrice DOUBLE);')
+			cu = c.execute('create table cryptocoins(timestamp DOUBLE, coin TEXT, marketcap DOUBLE, price DOUBLE, supply DOUBLE, unit TEXT, volume DOUBLE, change24hr DOUBLE, mtm DOUBLE, vm DOUBLE, vtv DOUBLE, inversePrice DOUBLE, stm DOUBLE, sm DOUBLE, stv DOUBLE);')
 		except s.OperationalError, e:
 			''
-			print e
+			#print e
 		
-		cmd = "ls output-lynx-*.csv"
-		status, output = commands.getstatusoutput(cmd)
 		fz = output.split()
 		for i in fz:
 			print i
@@ -528,25 +529,71 @@ class broker(object):
 					jsp.pop(3)
 					print jsp
 					#ins = c.execute("insert into cryptocoins (id,data) values (NULL,'"+json.dumps(mydata)+"');")
+					#lenj = len(jsp)
 					
-					#ins = c.execute("insert into cryptocoins (timestamp,coin,marketcap) values ('"+ts+"','"+jsp[1]+"','"+jsp[2]+"');")
-					ins = c.execute("insert into cryptocoins values (?,?,?,?,?,?,?,?,?,?,?,?)", jsp)
+					try:
+						ins = c.execute("insert into cryptocoins values (?,?,?,?,?,?,?,?,?,?,?,?)", jsp)
+					except s.OperationalError, e:
+						''
+						#print e
+					except s.ProgrammingError, e:
+						''
+						#print e
+						
+					try:
+						ins = c.execute("insert into cryptocoins values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", jsp)
+					except s.OperationalError, e:
+						''
+						#print e
+					except s.ProgrammingError, e:
+						''
+						#print e
+					
+					try:
+						jsp = jsp.pop()
+						ins = c.execute("insert into cryptocoins values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", jsp)
+					except s.OperationalError, e:
+						''
+						#print e
+					except s.ProgrammingError, e:
+						''
+						#print e
+					
+					#sql = "INSERT INTO cryptocoins VALUES (%s)" % ",".join('?' * 15)
+					#ins = c.execute(sql, jsp)
+					
 					#print ins
 					#print dir(ins)
 					c.commit()
 				except IndexError, e:
 					print e
 			fp.close()
-			#sys.exit()
 			time.sleep(1)
-
-			"""
-			cu = c.execute('select * from test2;')
-			res = cu.fetchall()
-			print res
-			"""
 		c.close()
+	
+	def analyzeReader(self):
+		cmd = "ls output-lynx-*.csv"
+		status, output = commands.getstatusoutput(cmd)
+		self.insertOutput(output)
 
+	def analyzedb(self):
+		# insert data into sqlite db
+		import sqlite3 as s
+		c = s.Connection('./db/hash.sqlite')
+		
+		cur = c.cursor()
+		res = cur.execute("select * from cryptocoins where coin != 'Coin' and coin != '.';")
+		#res = cu.fetchall()
+		res = list(res)
+		for i in res:
+			print i
+			ts = float(i[0]) 
+			jsdate = time.strftime("new Date (%Y,%m,%d, %H, %I, %S)", time.localtime(ts))
+			print jsdate
+			
+		c.close()
+		#res = [1,2,3]
+		return res
 
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):

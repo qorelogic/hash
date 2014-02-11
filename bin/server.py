@@ -6,7 +6,7 @@ from keys import *
 urls = (
 	'/', 'index',
 	'/coinwarz', 'coinwarz',
-	'/', 'analyzedb'
+	'/analyzedb', 'analyzedb'
 )
 
 class index:
@@ -23,7 +23,7 @@ class coinwarz:
 
 class analyzedb:
 	def GET(self):
-		r = b.analyzeReader()
+		r = b.analyzedb()
 		render = web.template.render('templates-webpy')
 		return render.analyzedb(r)
 		

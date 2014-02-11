@@ -70,6 +70,11 @@ if __name__ == '__main__':
 		if sys.argv[1] == 'test3':
 			#b.coinwarz()
 			b.analyzeReader()
+		if sys.argv[1] == 'test4':
+			b.analyzedb()
+		if sys.argv[1] == 'test5':
+			f = sys.argv[2]
+			b.insertOutput(f)
 			
 	except IndexError, e:
 		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun >'
