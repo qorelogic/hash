@@ -438,7 +438,7 @@ class broker(object):
 			c1.writerows(r)
 			b1.close()
 		
-		self.insertOutput(fname)
+			self.insertOutput(fname)
 		
 		#sum = b.sum(axis=0)
 		#print [sum[1],sum[3]]
