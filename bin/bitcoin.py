@@ -258,6 +258,11 @@ class broker(object):
 			print 'self.url is not set'
 			sys.exit()
 		
+		self.cryptsy = None
+		
+	def setCryptsy(self, c):
+		self.cryptsy = c
+	
 	def getNonce(self):
 		self.log('getNonce')
 		# Come up with your own method for choosing an incrementing nonce
@@ -1137,6 +1142,8 @@ class btce(broker):
 		#j = f.read()
 		#ptbal = json.load(j)
 		#print ptbal
+		
+		print self.cryptsy.getBalances()
 		
 		
 		w = {'totalusd': tusdbal, 'currencies':self.currencies}

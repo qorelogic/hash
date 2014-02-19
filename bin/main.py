@@ -6,6 +6,7 @@ if __name__ == '__main__':
 	
 	try:
 		if sys.argv[1] == 'main':
+			b.setCryptsy(c)
 			b.main()
 		if sys.argv[1] == 'rebalance':
 			b.rebalanceCurrencies()
