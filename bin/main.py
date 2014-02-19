@@ -69,7 +69,7 @@ if __name__ == '__main__':
 			#print price().getPriceJSON('MOON')
 			#print price().getPriceJSON('KITTEH')
 			#print price().getCryptsyMarketId('MEOW/BTC')
-			#print coinexPw().getBalances()
+			print coinexPw().getBalances()
 			#print cryptsy('317bca8e06c57bb892d72a5f7c860d52cfcc8053c6594a782c72bcaad388e32c', '191bac48d7545435f5367d9dfd30d70c64fca38059615fe21bb6a1e03c523135').getBalances()
 			print c.getBalances()
 			
