@@ -46,7 +46,15 @@ class api:
 		self.headers["Content-type"] = "application/x-www-form-urlencoded"
 		self.params = ""
 	
-	def callAPI(self, url):
+	def callAPI(self, url, cachefile=''):
+		if cachefile != '':
+			fp = open(cachefile, 'r')
+			jo = fp.read()
+			fp.close()
+			jo = json.loads(jo)
+			return jo
+			sys.exit()
+			
 		u = urlparse(url)
 		server = u.hostname
 		req = u.path + '?' + u.query
@@ -83,14 +91,39 @@ class price(object):
 		''
 		#self.api = api()
 	
+	# currencypair = 'DOGE/BTC'
+	def getCryptsyMarketId(self, currencypair):
+		# cryptsy marketids
+		jo = api().callAPI('http://pubapi.cryptsy.com/api.php?method=marketdatav2','/home/qore/hash/tmp/cryptsyapi.php.json')['return']['markets']
+		cryptsyMarketIds = {}
+		for i in jo:
+			cryptsyMarketIds[i] = jo[i]['marketid']
+			#print i
+			#print jo[i]['marketid']
+		#print cryptsyMarketIds
+		return cryptsyMarketIds[currencypair]
+		
+	#currencypair = 'MEOW/BTC'
+	def getCryptsyPrice(self, currencypair):
+		quoteCurrency = re.sub(re.compile(r'(.*?)\/.*', re.S), '\\1', currencypair)
+		jo = self.api.callAPI('http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid='+self.getCryptsyMarketId(currencypair))
+		try:
+			return float(jo['return']['markets'][quoteCurrency]['lasttradeprice'])
+		except:
+			return 0
+			
+	def getBTCePrice(self, currencypair):
+		import btceapi
+		connection = btceapi.BTCEConnection()
+		#print btceapi.all_pairs
+		t = btceapi.getTicker('btc_usd')
+		return t.avg
+		
 	def getPriceJSON(self, currency):
 		self.api = api()
+		
 		if currency == 'DOGE':
-			jo = self.api.callAPI('http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=132')
-			try:
-				return float(jo['return']['markets']['DOGE']['lasttradeprice'])
-			except:
-				return 0
+			return self.getCryptsyPrice('DOGE/BTC')
 	
 		if currency == 'MOON':
 			# source; https://gist.github.com/erundook/8377222
@@ -99,6 +132,17 @@ class price(object):
 			for i in jo['trade_pairs']:
 				if i['url_slug'] == 'moon_btc':
 					return float(i['last_price'] * pow(10,-8))
+
+		if currency == 'KITTEH':
+			return self.getCryptsyPrice('MEOW/BTC')
+		if currency == 'MEOW':
+			return self.getCryptsyPrice('MEOW/BTC')
+			
+		if currency == 'BTC':
+			return self.getBTCePrice('BTC/USD')
+			
+		return self.getCryptsyPrice(currency+'/BTC')
+		
 	
 	def marketData(self):
 		j = self.callAPI('http://pubapi.cryptsy.com/api.php?method=marketdatav2')
@@ -152,6 +196,7 @@ class coinexPw(object):
 		balances = {}
 		total_btc = 0
 		xbtcusd = 870
+		print 'coinex.pw balances:'
 		for i in j['balances']:
 			#print i
 			amount = float(i['amount']) / pow(10,8)
@@ -595,6 +640,7 @@ class broker(object):
 		#res = [1,2,3]
 		return res
 
+from CryptsyPythonAPI.Cryptsy import *
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):
 		self.domain = "cryptsy.com"
@@ -602,6 +648,51 @@ class cryptsy(broker):
 		
 		self.method_getInfo = 'getinfo'
 		super(cryptsy, self).__init__(api_key, api_secret)
+		
+	def getBalances(self):
+		print 'cryptsy balances:'
+		c = Cryptsy(self.api_key,self.api_secret)
+		info = c.getInfo()['return']['balances_available']
+		b = price().getPriceJSON('BTC')
+		for i in info:
+			bal = float(info[i])
+			q = 0
+			if bal > 0:
+				q = price().getPriceJSON(i)
+				bal_btc = float(info[i]) * q
+				bal_usd = float(bal_btc) * float(b)
+				print i + ' ' + info[i] + ' ' + str(bal_btc) + ' ' + str(bal_usd)
+			
+		"""
+		print j
+		balances = {}
+		total_btc = 0
+		xbtcusd = 870
+		"""
+		"""
+		for i in j['balances']:
+			#print i
+			amount = float(i['amount']) / pow(10,8)
+			#print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount)
+			#print price().getPriceJSON('MOON')
+			rate =  self.getPrice(i['currency_name'])
+			#print rate
+			try:
+				bal = amount * rate
+				usdbal = bal * xbtcusd
+				print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount) + '\t' + str(bal) + '\t' + str(usdbal)
+				balances[i['currency_name']] = {}
+				balances[i['currency_name']]['currency_id'] = i['currency_id']
+				balances[i['currency_name']]['amount'] = amount
+				balances[i['currency_name']]['balance'] = bal
+				total_btc += bal				
+			except:
+				''
+		#print j['balances']
+		print balances
+		total_usd = total_btc * xbtcusd
+		print {'balances':balances,'total_btc':total_btc, 'total_usd':total_usd}
+		"""
 
 class btce(broker):
 	
