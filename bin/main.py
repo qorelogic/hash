@@ -71,9 +71,28 @@ if __name__ == '__main__':
 			#print price().getCryptsyMarketId('MEOW/BTC')
 			#print coinexPw().getBalances()
 			#print cryptsy('317bca8e06c57bb892d72a5f7c860d52cfcc8053c6594a782c72bcaad388e32c', '191bac48d7545435f5367d9dfd30d70c64fca38059615fe21bb6a1e03c523135').getBalances()
-			print c.getBalances()
+			#print c.getBalances()
 			
-			
+			"""
+			from elementtree.ElementTree import ElementTree
+			mydoc = ElementTree(file='tst.xml')
+			for e in mydoc.findall('/foo/bar'):
+				print e.get('title').text
+			"""
+
+			import lxml.etree as etree
+			rawPage = open('/home/qore/hash/tmp/coinwarz.html', 'r')
+			#rawPage = urllib2.urlopen(request)
+			read = rawPage.read()
+			rawPage.close()
+			#print read
+			tree = etree.HTML(read)    
+			for i in tree.xpath("//div"):
+				#print tr.xpath("//td//font[text()='Brand']/folltowing::td[1]")
+				e = i.xpath("//a/text()")
+				#print dir(e)
+				print e
+
 		if sys.argv[1] == 'test3':
 			#b.coinwarz()
 			b.analyzeReader()
