@@ -3,6 +3,9 @@ $def with (r)
 <head>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
+	//var pwidth = 1100;
+	var pwidth = 980;
+	var pheight = 600;
       google.load('visualization', '1', {'packages':['motionchart']});
       google.setOnLoadCallback(drawChart);
 	function drawChart() {
@@ -45,7 +48,7 @@ $def with (r)
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div'));
-		var options = {width: 1100, height:800};
+		var options = {width: pwidth, height: pheight};
 		
 		//
 		options['state'] = '{"xZoomedDataMin":0.00197796885532,"iconKeySettings":[],"xZoomedIn":false,"sizeOption":"9","yZoomedIn":false,"xLambda":0,"colorOption":"7","xAxisOption":"9","xZoomedDataMax":15.3622395121,"showTrails":true,"iconType":"BUBBLE","duration":{"timeUnit":"D","multiplier":1},"orderedByX":false,"uniColorForNonSelected":false,"yZoomedDataMin":-37.87,"playDuration":15000,"time":"1988","nonSelectedAlpha":0.4,"orderedByY":false,"yAxisOption":"7","dimensions":{"iconDimensions":["dim0"]},"yLambda":0,"yZoomedDataMax":203.38};';
@@ -86,12 +89,46 @@ $def with (r)
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div2'));
-		var options = {width: 1100, height:800};
+		var options = {width: pwidth, height: pheight};
 		
 		// 
 		options['state'] = '{"orderedByY":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"showTrails":true,"xZoomedDataMin":0.006671138615,"orderedByX":false,"playDuration":15000,"sizeOption":"9","iconKeySettings":[],"yAxisOption":"10","colorOption":"7","yZoomedIn":false,"yZoomedDataMax":72.1628250096,"uniColorForNonSelected":false,"iconType":"BUBBLE","xZoomedIn":false,"xLambda":0,"time":"1988","yZoomedDataMin":0.000323144645345,"xZoomedDataMax":15.8284275832,"dimensions":{"iconDimensions":["dim0"]},"xAxisOption":"9","nonSelectedAlpha":0.4};';
 		// % change vs. vol/marcetcap%
 		//options['state'] = '{"uniColorForNonSelected":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"dimensions":{"iconDimensions":["dim0"]},"showTrails":true,"xZoomedDataMin":0.00667869159671,"yAxisOption":"7","playDuration":15000,"sizeOption":"9","xZoomedIn":false,"xLambda":0,"colorOption":"7","nonSelectedAlpha":0.4,"xAxisOption":"9","xZoomedDataMax":15.8297752214,"iconType":"BUBBLE","iconKeySettings":[],"time":"1988","yZoomedIn":false,"yZoomedDataMax":32.09,"orderedByY":false,"orderedByX":false,"yZoomedDataMin":-38.08}';
+		
+		chart.draw(data, options);
+	}
+    </script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {'packages':['motionchart']});
+      google.setOnLoadCallback(drawChart2);
+	function drawChart2() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Coin');
+		data.addColumn('date', 'Date');
+		data.addColumn('number', 'MarketCap');
+		data.addColumn('number', 'Price');
+		data.addColumn('number', 'Supply');
+		data.addColumn('string', 'Unit');
+		data.addColumn('number', 'Volume');
+		data.addColumn('number', 'Change(24hr)');
+		data.addColumn('number', 'Marketcap/Total MarketCap(%) Volume');
+		data.addColumn('number', 'Volume/MarketCap(%)');
+		data.addColumn('number', 'Volume/TotalVolume(%)');
+		data.addColumn('number', 'InversePrice');
+
+		data.addColumn('number', 'Supply/Total MarketCap(%) Volume');
+		data.addColumn('number', 'Supply/MarketCap(%)');
+		data.addColumn('number', 'Supply/TotalVolume(%)');
+		var myr = [
+		$for i in r:
+			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15]],
+		]
+		data.addRows(myr);
+		var chart = new google.visualization.MotionChart(document.getElementById('chart_div3'));
+		var options = {width: pwidth, height: pheight};
+		
+		options['state'] = '{"orderedByX":false,"orderedByY":false,"yZoomedIn":false,"yAxisOption":"10","uniColorForNonSelected":false,"showTrails":true,"yZoomedDataMin":0.000618059740335,"yLambda":0,"nonSelectedAlpha":0.4,"xAxisOption":"8","time":"1988","xZoomedIn":false,"colorOption":"7","iconKeySettings":[],"playDuration":15000,"xZoomedDataMax":76.4453820761,"sizeOption":"9","xLambda":0,"dimensions":{"iconDimensions":["dim0"]},"duration":{"timeUnit":"D","multiplier":1},"yZoomedDataMax":58.3399366767,"iconType":"BUBBLE","xZoomedDataMin":0.00101457273188};';
 		
 		chart.draw(data, options);
 	}
@@ -104,7 +141,8 @@ $def with (r)
 <input type="button" value="Update" onclick="alert('test')">
 <div id="chart_div" style="width: 600px; height: 300px;"></div>
 <div id="chart_div2" style="width: 600px; height: 300px; top:500px"></div>
-<pre style="position:relative; top:991px;">
+<div id="chart_div3" style="width: 600px; height: 300px; top:1000px"></div>
+<pre style="position:relative; top:1491px;">
 $for i in r:
 	$i
 </pre>
