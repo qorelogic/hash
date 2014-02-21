@@ -16,6 +16,7 @@ import string
 import datetime
 import re
 import math
+import os
 
 from config import *
 
@@ -552,7 +553,8 @@ class broker(object):
 		# insert data into sqlite db
 		if c == False:
 			import sqlite3 as s
-			c = s.Connection('./db/hash.sqlite')
+			f = os.abspath('./db/hash.sqlite')
+			c = s.Connection(f)
 		
 		"""
 		try:
