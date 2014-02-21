@@ -1,0 +1,66 @@
+$def with (r)
+<html>
+<head>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {'packages':['motionchart']});
+      google.setOnLoadCallback(drawChart);
+	function drawChart() {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Coin');
+		data.addColumn('date', 'Date');
+		data.addColumn('number', 'MarketCap');
+		data.addColumn('number', 'Price');
+		data.addColumn('number', 'Supply');
+		data.addColumn('string', 'Unit');
+		data.addColumn('number', 'Volume');
+		data.addColumn('number', 'Change(24hr)');
+		data.addColumn('number', 'Marketcap/Total MarketCap(%) Volume');
+		data.addColumn('number', 'Volume/MarketCap(%)');
+		data.addColumn('number', 'Volume/TotalVolume(%)');
+		data.addColumn('number', 'InversePrice');
+
+		data.addColumn('number', 'Supply/Total MarketCap(%) Volume');
+		data.addColumn('number', 'Supply/MarketCap(%)');
+		data.addColumn('number', 'Supply/TotalVolume(%)');
+		/*
+		*/
+		var myr = [
+		$for i in r:
+			['$i[1]', new Date($i[0] * 1000), $i[2],$i[3],$i[4],'$i[5]',$i[6],$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14]],
+		]
+		data.addRows(myr);
+		var chart = new google.visualization.MotionChart(document.getElementById('chart_div'));
+		var options = {width: 1000, height:440};
+		
+		//
+		options['state'] = '{"xZoomedDataMin":0.00197796885532,"iconKeySettings":[],"xZoomedIn":false,"sizeOption":"9","yZoomedIn":false,"xLambda":0,"colorOption":"7","xAxisOption":"9","xZoomedDataMax":15.3622395121,"showTrails":true,"iconType":"BUBBLE","duration":{"timeUnit":"D","multiplier":1},"orderedByX":false,"uniColorForNonSelected":false,"yZoomedDataMin":-37.87,"playDuration":15000,"time":"1988","nonSelectedAlpha":0.4,"orderedByY":false,"yAxisOption":"7","dimensions":{"iconDimensions":["dim0"]},"yLambda":0,"yZoomedDataMax":203.38};';
+		//{"showTrails":true,"yAxisOption":"7","yZoomedIn":false,"nonSelectedAlpha":0.4,"iconKeySettings":[],"yLambda":0,"yZoomedDataMax":119.29,"xAxisOption":"9","uniColorForNonSelected":false,"colorOption":"9","time":"2014-02-10","duration":{"multiplier":1,"timeUnit":"D"},"playDuration":15000,"sizeOption":"9","xZoomedIn":false,"xLambda":0,"dimensions":{"iconDimensions":["dim0"]},"orderedByY":false,"orderedByX":false,"xZoomedDataMax":17.827881476,"iconType":"BUBBLE","xZoomedDataMin":0.00189485557154,"yZoomedDataMin":-72.85}
+		
+		
+		options['state'] = '{"yZoomedDataMin":-72.85,"showTrails":true,"playDuration":15000,"xZoomedDataMin":0.00151019955067,"nonSelectedAlpha":0.4,"orderedByX":false,"yLambda":0,"yZoomedDataMax":119.29,"time":"2014-02-11","uniColorForNonSelected":false,"colorOption":"7","duration":{"timeUnit":"D","multiplier":1},"yAxisOption":"7","xAxisOption":"9","sizeOption":"9","xZoomedIn":false,"xLambda":0,"dimensions":{"iconDimensions":["dim0"]},"iconKeySettings":[{"key":{"dim0":"EarthCoin"},"trailStart":"2014-02-11"},{"key":{"dim0":"Kittehcoin"},"trailStart":"2014-02-11"},{"key":{"dim0":"DogeCoin"},"trailStart":"2014-02-11"}],"orderedByY":false,"xZoomedDataMax":17.827881476,"iconType":"BUBBLE","yZoomedIn":false}';
+		
+		// 
+		//options['state'] = '{"orderedByY":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"showTrails":true,"xZoomedDataMin":0.006671138615,"orderedByX":false,"playDuration":15000,"sizeOption":"9","iconKeySettings":[],"yAxisOption":"10","colorOption":"7","yZoomedIn":false,"yZoomedDataMax":72.1628250096,"uniColorForNonSelected":false,"iconType":"BUBBLE","xZoomedIn":false,"xLambda":0,"time":"1988","yZoomedDataMin":0.000323144645345,"xZoomedDataMax":15.8284275832,"dimensions":{"iconDimensions":["dim0"]},"xAxisOption":"9","nonSelectedAlpha":0.4};';
+		// % change vs. vol/marcetcap%
+		//options['state'] = '{"uniColorForNonSelected":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"dimensions":{"iconDimensions":["dim0"]},"showTrails":true,"xZoomedDataMin":0.00667869159671,"yAxisOption":"7","playDuration":15000,"sizeOption":"9","xZoomedIn":false,"xLambda":0,"colorOption":"7","nonSelectedAlpha":0.4,"xAxisOption":"9","xZoomedDataMax":15.8297752214,"iconType":"BUBBLE","iconKeySettings":[],"time":"1988","yZoomedIn":false,"yZoomedDataMax":32.09,"orderedByY":false,"orderedByX":false,"yZoomedDataMin":-38.08}';
+		//{"uniColorForNonSelected":false,"yLambda":0,"duration":{"timeUnit":"D","multiplier":1},"iconKeySettings":[],"showTrails":true,"xZoomedDataMin":0.00667547471326,"xAxisOption":"9","playDuration":15000,"sizeOption":"11","xZoomedIn":false,"xLambda":0,"colorOption":"11","yZoomedIn":false,"nonSelectedAlpha":0.1,"yZoomedDataMax":27.94,"iconType":"BUBBLE","orderedByY":false,"time":"1988","yZoomedDataMin":-39.28,"xZoomedDataMax":15.7882877541,"dimensions":{"iconDimensions":["dim0"]},"orderedByX":false,"yAxisOption":"7"}
+		
+		
+		chart.draw(data, options);
+	}
+    </script>
+<!--
+<script src="http://code.jquery.com/jquery-1.10.1.min.js">
+-->
+</head>
+<body>
+<div id="chart_div"></div>
+<input type="button" value="Update" onclick="alert('test')">
+<pre style="position:relative; top:991px;">
+$# $for i in r
+$#	$i
+	
+</pre>
+</body>
+</html>
