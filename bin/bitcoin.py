@@ -197,24 +197,27 @@ class coinexPw(object):
 		total_btc = 0
 		xbtcusd = 870
 		print 'coinex.pw balances:'
-		for i in j['balances']:
-			#print i
-			amount = float(i['amount']) / pow(10,8)
-			#print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount)
-			#print price().getPriceJSON('MOON')
-			rate =  self.getPrice(i['currency_name'])
-			#print rate
-			try:
-				bal = amount * rate
-				usdbal = bal * xbtcusd
-				print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount) + '\t' + str(bal) + '\t' + str(usdbal)
-				balances[i['currency_name']] = {}
-				balances[i['currency_name']]['currency_id'] = i['currency_id']
-				balances[i['currency_name']]['amount'] = amount
-				balances[i['currency_name']]['balance'] = bal
-				total_btc += bal				
-			except:
-				''
+		try:
+			for i in j['balances']:
+				#print i
+				amount = float(i['amount']) / pow(10,8)
+				#print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount)
+				#print price().getPriceJSON('MOON')
+				rate =  self.getPrice(i['currency_name'])
+				#print rate
+				try:
+					bal = amount * rate
+					usdbal = bal * xbtcusd
+					print i['currency_name'] + '\t' + str(i['currency_id']) + '\t' + str(amount) + '\t' + str(bal) + '\t' + str(usdbal)
+					balances[i['currency_name']] = {}
+					balances[i['currency_name']]['currency_id'] = i['currency_id']
+					balances[i['currency_name']]['amount'] = amount
+					balances[i['currency_name']]['balance'] = bal
+					total_btc += bal				
+				except:
+					''
+		except TypeError, e:
+			''
 		#print j['balances']
 		print balances
 		total_usd = total_btc * xbtcusd
