@@ -11,7 +11,7 @@ urls = (
 
 class index:
 	def GET(self):
-		r = b.analyze()
+		r = b.analyze(True, True)
 		render = web.template.render('templates-webpy')
 		return render.index(r)
 
