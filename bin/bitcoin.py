@@ -557,7 +557,8 @@ class broker(object):
 		# insert data into sqlite db
 		if c == False:
 			import sqlite3 as s
-			f = os.path.abspath('./db/hash.sqlite')
+			f = './db/hash.sqlite'
+			#f = os.abspath('./db/hash.sqlite')
 			c = s.Connection(f)
 		
 		"""
