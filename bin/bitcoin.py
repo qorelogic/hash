@@ -16,7 +16,6 @@ import string
 import datetime
 import re
 import math
-import os
 
 from config import *
 
@@ -553,7 +552,11 @@ class broker(object):
 		# insert data into sqlite db
 		if c == False:
 			import sqlite3 as s
-			f = os.abspath('./db/hash.sqlite')
+			#todo: fix the os.path.abspath() call and use this instead of the hardcoded config().basedir
+			#f = os.path.abspath('./db/hash.sqlite')
+			#d = os.path.dirname(f)
+			d = config().basedir
+			f = d+'/db/hash.sqlite'
 			c = s.Connection(f)
 		
 		"""
