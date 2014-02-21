@@ -299,8 +299,11 @@ class broker(object):
 	def check(self):
 		print self.api_key
 	
-	def log(self, str):
-		self.logBuffer += str+"\n"
+	def log(self, stri):
+		self.logBuffer += stri+"\n"
+	
+	def out(self, string):
+		print str(time.time())+': '+string
 		
 	# simple log balance to file
 	def logToFile(self, currency, balance):
@@ -362,7 +365,7 @@ class broker(object):
 			try:
 				n = re.sub(r',', '', a) # strip commas
 				n = re.sub(r'[+]', '', n) # strip polarity signs
-				print str(a)+'\t'+str(n)
+				#print str(a)+'\t'+str(n)
 				n = float(n)
 				return n
 			except:
@@ -396,7 +399,7 @@ class broker(object):
 		else:
 			c = 'cat output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
-		print output
+		#print output
 		#			    #                  name                       marketcap                      price                      total supply   ticker             volume               % Change              
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.\,e-]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\-\d\.\,\+]+).*', output)
 		
@@ -451,8 +454,8 @@ class broker(object):
 			#print r[i][1]
 			#print r[i][4]
 		li = r.tolist()
-		for i in li:
-			print i
+		#for i in li:
+		#	print i
 		
 		# add to the json log file
 		d = {}
@@ -490,6 +493,7 @@ class broker(object):
 			c1.writerow(header)
 			c1.writerows(r)
 			b1.close()
+			self.out('saved to: '+fname)
 		
 			self.insertOutput(fname)
 		
@@ -573,7 +577,7 @@ class broker(object):
 		
 		fz = output.split()
 		for i in fz:
-			print i
+			#print i
 			ts = re.sub(re.compile(r'.*-([\d\.]+)\..*', re.S), '\\1', i)
 			fp = open(i, 'r')
 			output = fp.read()
@@ -585,7 +589,7 @@ class broker(object):
 					jsp.pop(0)
 					jsp.insert(0, ts)
 					jsp.pop(3)
-					print jsp
+					#print jsp
 					#ins = c.execute("insert into cryptocoins (id,data) values (NULL,'"+json.dumps(mydata)+"');")
 					#lenj = len(jsp)
 					
@@ -624,7 +628,9 @@ class broker(object):
 					#print dir(ins)
 					c.commit()
 				except IndexError, e:
-					print e
+					''
+					#print e
+			self.out('updated sqlite db')
 			fp.close()
 			time.sleep(1)
 		c.close()
