@@ -645,7 +645,7 @@ class broker(object):
 		#res = [1,2,3]
 		return res
 
-from CryptsyPythonAPI.Cryptsy import *
+from lib.CryptsyPythonAPI.Cryptsy import *
 class cryptsy(broker):
 	def __init__(self, api_key, api_secret):
 		self.domain = "cryptsy.com"
