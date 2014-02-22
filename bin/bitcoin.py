@@ -644,7 +644,8 @@ class broker(object):
 		c = s.Connection('./db/hash.sqlite')
 		
 		cur = c.cursor()
-		res = cur.execute("select * from cryptocoins where coin != 'Coin' and coin != '.';")
+		#res = cur.execute("select * from cryptocoins where coin != 'Coin' and coin != '.';")
+		res = cur.execute("select * from cryptocoins where coin != 'Coin' and coin != '.' order by timestamp desc;")
 		#res = cu.fetchall()
 		res = list(res)
 		for i in res:
