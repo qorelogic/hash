@@ -264,7 +264,7 @@ class broker(object):
 		self.cryptsy = None
 		
 		# make dirs if not exist
-		cmd = "mkdir -p log/output-lynx"
+		cmd = "mkdir -p "+config().basedir+"/log/output-lynx"
 		status, output = commands.getstatusoutput(cmd)
 		
 		# test for correct basedir configuration
@@ -409,7 +409,7 @@ class broker(object):
 		if livedata:
 			c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
 		else:
-			c = 'cat output-lynx.txt'
+			c = 'cat '+config().basedir+'/output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
 		#print output
 		#			    #                  name                       marketcap                      price                      total supply   ticker             volume               % Change              
@@ -498,7 +498,7 @@ class broker(object):
 		# create csv file
 		if savelog:
 			import csv
-			fname = 'log/output-lynx/output-lynx-'+str(d['timestamp'])+'.csv'
+			fname = config().basedir+'/log/output-lynx/output-lynx-'+str(d['timestamp'])+'.csv'
 			b1 = open(fname,'w')
 			c1 = csv.writer(b1)
 			#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
@@ -653,14 +653,14 @@ class broker(object):
 		c.close()
 	
 	def analyzeReader(self):
-		cmd = "ls log/output-lynx/output-lynx-*.csv 2> /dev/null"
+		cmd = "ls "+config().basedir+"/log/output-lynx/output-lynx-*.csv 2> /dev/null"
 		status, output = commands.getstatusoutput(cmd)
 		self.insertOutput(output)
 
 	def analyzedb(self):
 		# insert data into sqlite db
 		import sqlite3 as s
-		c = s.Connection('./db/hash.sqlite')
+		c = s.Connection(config().basedir+'/db/hash.sqlite')
 		
 		cur = c.cursor()
 		#res = cur.execute("select * from cryptocoins where coin != 'Coin' and coin != '.';")
