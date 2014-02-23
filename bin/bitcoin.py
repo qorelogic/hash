@@ -267,6 +267,14 @@ class broker(object):
 		cmd = "mkdir -p log/output-lynx"
 		status, output = commands.getstatusoutput(cmd)
 		
+		# test for correct basedir configuration
+		try:
+			fp = open(config().basedir+'/db/hash.sqlite','r')
+		except IOError,e :
+			#print e
+			print 'The configuration basedir seems to be wrong, please edit the config::basedir in bin/config.py and try again.'
+			sys.exit()
+		
 	def setCryptsy(self, c):
 		self.cryptsy = c
 	
@@ -563,9 +571,14 @@ class broker(object):
 			#todo: fix the os.path.abspath() call and use this instead of the hardcoded config().basedir
 			#f = os.path.abspath('./db/hash.sqlite')
 			#d = os.path.dirname(f)
-			d = config().basedir
-			f = d+'/db/hash.sqlite'
-			c = s.Connection(f)
+			try:
+				d = config().basedir
+				f = d+'/db/hash.sqlite'
+				c = s.Connection(f)
+			except s.OperationalError, e:
+				print e
+				print f
+				sys.exit()
 		
 		"""
 		try:
