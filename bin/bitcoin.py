@@ -16,7 +16,6 @@ import string
 import datetime
 import re
 import math
-import os
 
 from config import *
 
@@ -264,6 +263,18 @@ class broker(object):
 		
 		self.cryptsy = None
 		
+		# make dirs if not exist
+		cmd = "mkdir -p "+config().basedir+"/log/output-lynx"
+		status, output = commands.getstatusoutput(cmd)
+		
+		# test for correct basedir configuration
+		try:
+			fp = open(config().basedir+'/db/hash.sqlite','r')
+		except IOError,e :
+			#print e
+			print 'The configuration basedir seems to be wrong, please edit the config::basedir in bin/config.py and try again.'
+			sys.exit()
+		
 	def setCryptsy(self, c):
 		self.cryptsy = c
 	
@@ -398,7 +409,7 @@ class broker(object):
 		if livedata:
 			c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
 		else:
-			c = 'cat output-lynx.txt'
+			c = 'cat '+config().basedir+'/output-lynx.txt'
 		status, output = commands.getstatusoutput(c)
 		#print output
 		#			    #                  name                       marketcap                      price                      total supply   ticker             volume               % Change              
@@ -487,7 +498,7 @@ class broker(object):
 		# create csv file
 		if savelog:
 			import csv
-			fname = 'output-lynx-'+str(d['timestamp'])+'.csv'
+			fname = config().basedir+'/log/output-lynx/output-lynx-'+str(d['timestamp'])+'.csv'
 			b1 = open(fname,'w')
 			c1 = csv.writer(b1)
 			#c1.writerow(( header[0], header[2], header[4], header[5], header[7], header[8] ))
@@ -557,9 +568,17 @@ class broker(object):
 		# insert data into sqlite db
 		if c == False:
 			import sqlite3 as s
-			f = './db/hash.sqlite'
-			#f = os.abspath('./db/hash.sqlite')
-			c = s.Connection(f)
+			#todo: fix the os.path.abspath() call and use this instead of the hardcoded config().basedir
+			#f = os.path.abspath('./db/hash.sqlite')
+			#d = os.path.dirname(f)
+			try:
+				d = config().basedir
+				f = d+'/db/hash.sqlite'
+				c = s.Connection(f)
+			except s.OperationalError, e:
+				print e
+				print f
+				sys.exit()
 		
 		"""
 		try:
@@ -634,14 +653,14 @@ class broker(object):
 		c.close()
 	
 	def analyzeReader(self):
-		cmd = "ls output-lynx-*.csv"
+		cmd = "ls "+config().basedir+"/log/output-lynx/output-lynx-*.csv 2> /dev/null"
 		status, output = commands.getstatusoutput(cmd)
 		self.insertOutput(output)
 
 	def analyzedb(self):
 		# insert data into sqlite db
 		import sqlite3 as s
-		c = s.Connection('./db/hash.sqlite')
+		c = s.Connection(config().basedir+'/db/hash.sqlite')
 		
 		cur = c.cursor()
 		#res = cur.execute("select * from cryptocoins where coin != 'Coin' and coin != '.';")

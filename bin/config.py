@@ -5,6 +5,7 @@ class config:
 	dat = None
 	brokerBlockchains = None
 	tdat = None
+	basedir = '/application directory path here'
 	
 	def __init__(self):
 		# define portfolio weights
