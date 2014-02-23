@@ -5,7 +5,7 @@ class config:
 	dat = None
 	brokerBlockchains = None
 	tdat = None
-	basedir = '/application directory path here'
+	basedir = '/home/qore/qorelogic/clients/hash'
 	
 	def __init__(self):
 		# define portfolio weights
