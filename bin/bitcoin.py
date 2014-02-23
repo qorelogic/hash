@@ -264,6 +264,10 @@ class broker(object):
 		
 		self.cryptsy = None
 		
+		# make dirs if not exist
+		cmd = "mkdir -p log/output-lynx"
+		status, output = commands.getstatusoutput(cmd)
+		
 	def setCryptsy(self, c):
 		self.cryptsy = c
 	
@@ -634,7 +638,7 @@ class broker(object):
 		c.close()
 	
 	def analyzeReader(self):
-		cmd = "ls log/output-lynx/output-lynx-*.csv"
+		cmd = "ls log/output-lynx/output-lynx-*.csv 2> /dev/null"
 		status, output = commands.getstatusoutput(cmd)
 		self.insertOutput(output)
 
