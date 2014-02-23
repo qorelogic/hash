@@ -63,6 +63,8 @@ if __name__ == '__main__':
 			b.analyze(True, False)
 		if sys.argv[1] == 'analyze-dryrun':
 			b.analyze(False, False)
+		if sys.argv[1] == 'analyze-bulk-reader':
+			b.analyzeReader()
 		if sys.argv[1] == 'test2':
 			#print b.getBlockChains('dogechain.info','/address/DBHAPfBRc7L7WTcr2Cnf6tfvTRtdKEpnkF','(Balance.*?([\d\.]+).*?DOGE)')
 			#print price().getPriceJSON('DOGE')
@@ -84,6 +86,6 @@ if __name__ == '__main__':
 			b.insertOutput(f)
 			
 	except IndexError, e:
-		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun >'
+		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun | analyze-bulk-reader >'
 
 #o = LocalBitcoinsAPI()
