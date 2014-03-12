@@ -54,9 +54,10 @@ $# <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		data.addColumn('number', 'AvgProfit');
 		data.addColumn('number', 'Algo');
 		data.addColumn('number', 'Reward');
+		data.addColumn('number', 'InverseDifficulty');
 		var myr = [
 		$for i in r:
-			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15], $i[16],$i[17],$i[18],$i[19],$i[20],$i[21],$i[22],$i[23],$i[24],$i[25]],
+			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15], $i[16],$i[17],$i[18],$i[19],$i[20],$i[21],$i[22],$i[23],$i[24],$i[25],$i[26]],
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div'));
@@ -106,9 +107,10 @@ $# <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		data.addColumn('number', 'AvgProfit');
 		data.addColumn('number', 'Algo');
 		data.addColumn('number', 'Reward');
+		data.addColumn('number', 'InverseDifficulty');
 		var myr = [
 		$for i in r:
-			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15],$i[16],$i[17],$i[18],$i[19],$i[20],$i[21],$i[22],$i[23],$i[24],$i[25]],
+			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15],$i[16],$i[17],$i[18],$i[19],$i[20],$i[21],$i[22],$i[23],$i[24],$i[25],$i[26]],
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div2'));
@@ -154,9 +156,10 @@ $# <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 		data.addColumn('number', 'AvgProfit');
 		data.addColumn('number', 'Algo');
 		data.addColumn('number', 'Reward');
+		data.addColumn('number', 'InverseDifficulty');
 		var myr = [
 		$for i in r:
-			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15],$i[16],$i[17],$i[18],$i[19],$i[20],$i[21],$i[22],$i[23],$i[24],$i[25]],
+			['$i[1]', new Date (1988,0,1),$i[2],$i[4],$i[5],'$i[6]',$i[7],$i[8],$i[9],$i[10],$i[11],$i[12],$i[13],$i[14],$i[15],$i[16],$i[17],$i[18],$i[19],$i[20],$i[21],$i[22],$i[23],$i[24],$i[25],$i[26]],
 		]
 		data.addRows(myr);
 		var chart = new google.visualization.MotionChart(document.getElementById('chart_div3'));

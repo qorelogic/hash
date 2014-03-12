@@ -435,7 +435,7 @@ class broker(object):
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.\,e-]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\-\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)','minBlockTime', 'ratio', 'adjustedratio', 'difficulty', 'networkhashrate', 'avgHash', 'currentBlocks', 'avgProfit', 'algo', 'reward']
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)','minBlockTime', 'ratio', 'adjustedratio', 'difficulty', 'networkhashrate', 'avgHash', 'currentBlocks', 'avgProfit', 'algo', 'reward','inverseDifficulty']
 
 		r = asarray(r)
 		
@@ -449,6 +449,7 @@ class broker(object):
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		
+		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
@@ -566,6 +567,12 @@ class broker(object):
 				r[i][25] = float(cc[r[i][1]]['reward'])
 			except:
 				''
+			# inverse of difficulty
+			try:
+				r[i][26] = float(1) / float(cc[r[i][1]]['difficulty'])
+			except:
+				''
+			
 			#print r[i][1]
 			#print r[i][4]
 		li = r.tolist()
