@@ -55,7 +55,7 @@ def cacheLynx(url, livedata):
 			status, output = commands.getstatusoutput(liveC + ' > '+cachefile)
 			status, output = commands.getstatusoutput('cat '+cachefile)
 		
-		c = 'cat '+cachefile
+		c = 'cat '+config().basedir+'/'+cachefile
 	status, output = commands.getstatusoutput(c)
 	#print output
 	return output
@@ -428,7 +428,7 @@ class broker(object):
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
 			
-		output = cacheLynx('coinmarketcap.com', livedata)
+		output = cacheLynx('http://coinmarketcap.com/all.html', livedata)
 		#print output
 		
 		#			    #                  name                       marketcap                      price                      total supply   ticker             volume               % Change              
