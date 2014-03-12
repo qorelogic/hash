@@ -40,6 +40,25 @@ def nd(n,dec):
 
 from urlparse import urlparse
 
+def cacheLynx(url, livedata):
+	liveC = "lynx -dump -width=200 "+url+" | grep '%'"
+	if livedata:
+		c = liveC
+	else:
+		# cache to output-lynx.txt
+		cachefile = url+'.txt'
+		#cachefile = 'output-lynx.txt'
+		status, output = commands.getstatusoutput('ls '+cachefile)
+		res = re.sub(re.compile(r'.*(No such file).*', re.S), "\\1", output)
+		if res.strip() == 'No such file':
+			status, output = commands.getstatusoutput(liveC + ' > '+cachefile)
+			status, output = commands.getstatusoutput('cat '+cachefile)
+		
+		c = 'cat '+config().basedir+'/'+cachefile
+	status, output = commands.getstatusoutput(c)
+	#print output
+	return output
+
 class api:
 	def __init__(self):
 		self.headers = {}
@@ -48,12 +67,15 @@ class api:
 	
 	def callAPI(self, url, cachefile=''):
 		if cachefile != '':
-			fp = open(cachefile, 'r')
-			jo = fp.read()
-			fp.close()
-			jo = json.loads(jo)
-			return jo
-			sys.exit()
+			try:
+				fp = open(cachefile, 'r')
+				jo = fp.read()
+				fp.close()
+				jo = json.loads(jo)
+				return jo
+				sys.exit()
+			except:
+				''
 			
 		u = urlparse(url)
 		server = u.hostname
@@ -76,6 +98,13 @@ class api:
 		j =  content
 		try:
 			jo = json.loads(j)
+			
+			if cachefile != '':
+				# write to cachefile
+				fp = open(cachefile, 'w')
+				fp.write(j)
+				fp.close()
+			
 			return jo
 		except ValueError, e:
 			''
@@ -405,19 +434,18 @@ class broker(object):
 		# http://www.wheretomine.com/
 		# http://www.coinwarz.com/cryptocurrency
 		# http://dustcoin.com/		
-		
-		if livedata:
-			c = "lynx -dump -width=200 coinmarketcap.com | grep '%'"
-		else:
-			c = 'cat '+config().basedir+'/output-lynx.txt'
-		status, output = commands.getstatusoutput(c)
+
+		output = cacheLynx('http://coinmarketcap.com/all.html', livedata)
 		#print output
+		
 		#			    #                  name                       marketcap                      price                      total supply   ticker             volume               % Change              
 		r = re.findall(r'.*?([\d]+).*?\[(.*?)\.png\].*?\$(.*?)\[.*?\$(.*?).*?([\d\.\,e-]+).*?([\d\.\,]+).*?(\w+).*?\$.*?([\d\.\,]+).*?([\-\d\.\,\+]+).*', output)
 		
 		b = array([])
-		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)']
+		header = ['#','Coin', 'Market Cap', '', 'Price', 'Supply', 'Unit', 'Volume', 'Change(24hr)','MarketCap / Total MarketCap (%)','Volume / MarketCap (%)','Volume / TotalVolume (%) ','InversePrice', 'Supply/Total MarketCap(%) Volume','Supply/MarketCap(%)','Supply/TotalVolume(%)','minBlockTime', 'ratio', 'adjustedratio', 'difficulty', 'networkhashrate', 'avgHash', 'currentBlocks', 'avgProfit', 'algo', 'reward']
+
 		r = asarray(r)
+		
 		# add a column of zeros
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
@@ -427,7 +455,50 @@ class broker(object):
 		
 		r = column_stack((r, zeros(shape(r)[0])))
 		r = column_stack((r, zeros(shape(r)[0])))
-		#r = column_stack((r, zeros(shape(r)[0])))
+		
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		r = column_stack((r, zeros(shape(r)[0])))
+		
+		# merge new array into r
+		q = 'http://www.coinchoose.com/api.php?base=BTC'
+		if livedata == True:
+			j = api().callAPI(q)
+		else:
+			j = api().callAPI(q, 'coinchoose.txt')
+			
+		
+		cc = {}
+		for i in j:
+			cc.update({i['name']:i})
+			"""
+			print i
+			print i['0']
+			print i['name']
+			print i['price']
+			print i['minBlockTime']
+			print i['ratio']
+			print i['adjustedratio']
+			print i['difficulty']
+			print i['networkhashrate']
+			print i['avgHash']
+			print i['currentBlocks']
+			print i['avgProfit']
+			print i['algo']
+			print i['reward']
+			"""
+		#res = json.loads(j)
+		#print res
+		
+		print cc
+		#print r
 		
 		mcaps = 0
 		mvolume = 0
@@ -462,7 +533,46 @@ class broker(object):
 			r[i][14] = float(r[i][5]) / float(r[i][2]) * 100
 			# Supply / total volume summation
 			r[i][15] = float(r[i][5]) / mvolume * 100
-		
+			try:
+				r[i][16] = float(cc[r[i][1]]['minBlockTime'])
+			except:
+				''
+			try:
+				r[i][17] = float(cc[r[i][1]]['ratio'])
+			except:
+				''
+			try:
+				r[i][18] = float(cc[r[i][1]]['adjustedratio'])
+			except:
+				''
+			try:
+				r[i][19] = float(cc[r[i][1]]['difficulty'])
+			except:
+				''
+			try:
+				r[i][20] = float(cc[r[i][1]]['networkhashrate'])
+			except:
+				''
+			try:
+				r[i][21] = float(cc[r[i][1]]['avgHash'])
+			except:
+				''
+			try:
+				r[i][22] = float(cc[r[i][1]]['currentBlocks'])
+			except:
+				''
+			try:
+				r[i][23] = float(cc[r[i][1]]['avgProfit'])
+			except:
+				''
+			try:
+				r[i][24] = float(cc[r[i][1]]['algo'])
+			except:
+				''
+			try:
+				r[i][25] = float(cc[r[i][1]]['reward'])
+			except:
+				''
 			#print r[i][1]
 			#print r[i][4]
 		li = r.tolist()
@@ -478,7 +588,6 @@ class broker(object):
 		if savelog == 0:
 			fp.write(j+"\n")
 		fp.close()
-		
 		
 		#for i in r:
 			#print i
