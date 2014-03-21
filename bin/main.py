@@ -82,7 +82,54 @@ if __name__ == '__main__':
 		if sys.argv[1] == 'test5':
 			f = sys.argv[2]
 			b.insertOutput(f)
+		if sys.argv[1] == 'test6':
+			b.analyze(False, False)
+		if sys.argv[1] == 'test7':
+			#b.reddit()
 			
+			import MySQLdb
+
+			db = MySQLdb.connect(host="localhost", # your host, usually localhost
+				user="ql", # your username
+				passwd="lq", # your password
+				db="ql") # name of the data base
+				
+			cursor = db.cursor()
+
+			"""
+			# you must create a Cursor object. It will let
+			#  you execute all the queries you need
+			cur = db.cursor() 
+
+			# Use all the SQL you like
+			cur.execute("SELECT * FROM reddit")
+
+			# print all the first cell of all the rows
+			for row in cur.fetchall() :
+				print row[0]
+			"""
+			sql = "INSERT INTO reddits (id, title) VALUES ('%s', '%s');"
+
+			"""
+			# Insert the data into the table
+			for i in range(1000):
+				s = now - i*five_mins
+				cursor.execute(sql % ( sin(s), cos(s), tan(s), s ))
+			"""
+			
+			w = ['controversial', 'hot', 'rising','top', 'new', 'gilded','wiki']
+			for i in w:
+				jo = api().callAPI('http://www.reddit.com/r/worldnews/'+i+'.json')
+				#print jo
+				for j in jo['data']['children']:
+					id = re.escape(j['data']['id'].strip())
+					title = re.escape(j['data']['title'].strip())
+					print 'inserting: '+id
+					try:
+						cursor.execute(sql %  (id, title) )
+					except:
+						''
+
 	except IndexError, e:
 		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun >'
 
