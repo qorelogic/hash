@@ -84,6 +84,11 @@ if __name__ == '__main__':
 			b.insertOutput(f)
 		if sys.argv[1] == 'test6':
 			b.analyze(False, False)
+			
+		if sys.argv[1] == 'test7a':
+			c = 'lynx -dump http://www.reddit.com/r/worldnews/hot.json | python -mjson.tool'
+			status, output = commands.getstatusoutput(c)
+			print output
 		if sys.argv[1] == 'test7':
 			#b.reddit()
 			
@@ -108,7 +113,57 @@ if __name__ == '__main__':
 			for row in cur.fetchall() :
 				print row[0]
 			"""
-			sql = "INSERT INTO reddits (id, title) VALUES ('%s', '%s');"
+			
+			p = {
+				"approved_by": None, 
+				"author": "anutensil", 
+				"author_flair_css_class": None, 
+				"author_flair_text": None, 
+				"banned_by": None, 
+				"clicked": None, 
+				"created": 1394385090.0, 
+				"created_utc": 1394381490.0, 
+				"distinguished": None, 
+				"domain": "self.worldnews", 
+				"downs": 558, 
+				"edited": 1395427548.0, 
+				"gilded": 0, 
+				"hidden": None, 
+				"id": "1zz0hh", 
+				"is_self": None, 
+				"likes": None, 
+				"link_flair_css_class": None, 
+				"link_flair_text": None, 
+				"media": None, 
+				"media_embed": {}, 
+				"name": "t3_1zz0hh", 
+				"num_comments": 1628, 
+				"num_reports": None, 
+				"over_18": None, 
+				"permalink": "/r/worldnews/comments/1zz0hh/ukraine_sticky_post/", 
+				"saved": None, 
+				"score": 1249, 
+				"secure_media": None, 
+				"secure_media_embed": {}, 
+				"selftext": '',
+				"selftext_html": '',
+				"stickied": None, 
+				"subreddit": "worldnews", 
+				"subreddit_id": "t5_2qh13", 
+				"thumbnail": "", 
+				"title": "Ukraine Sticky Post", 
+				"ups": 1807, 
+				"url": "http://www.reddit.com/r/worldnews/comments/1zz0hh/ukraine_sticky_post/", 
+				"visited": None,
+			}
+			
+			pk = ','.join('`%s`' % x for x in p.keys())
+			vls = ','.join("'%s'" % "%s" for x in p.values())
+			sql = "INSERT INTO reddits ("+pk+") VALUES ("+vls+");"
+			print len(p)
+			print sql
+			#sql = "INSERT INTO reddits (id, title) VALUES ('%s', '%s');"
+			#sys.exit()
 
 			"""
 			# Insert the data into the table
@@ -117,18 +172,41 @@ if __name__ == '__main__':
 				cursor.execute(sql % ( sin(s), cos(s), tan(s), s ))
 			"""
 			
+			def fma(str):
+				return re.escape(str.stip())
+				
 			w = ['controversial', 'hot', 'rising','top', 'new', 'gilded','wiki']
 			for i in w:
-				jo = api().callAPI('http://www.reddit.com/r/worldnews/'+i+'.json')
-				#print jo
+				#url = 'http://www.reddit.com/r/worldnews/'+i+'.json'
+				url = '/opt2/hash/qwe'
+				fp = open(url)
+				u = fp.read()
+				fp.close()
+				jo = json.loads(u)
+				
+				#jo = api().callAPI(url)
+				print jo
+				#pi = {}
 				for j in jo['data']['children']:
-					id = re.escape(j['data']['id'].strip())
-					title = re.escape(j['data']['title'].strip())
-					print 'inserting: '+id
-					try:
-						cursor.execute(sql %  (id, title) )
-					except:
-						''
+					#id = fma(j['data']['id'])
+					#title = fma(j['data']['title'])
+					#print len(p)
+					for k in p.keys():
+						#print k
+						p[k] = None
+						p[k] = j['data'][k]
+						
+					print p
+					#print p.keys()
+					#print p.values()
+					
+					#print 'inserting: '+id
+					#try:
+						#cursor.execute(sql %  (id, title))
+					#cursor.execute(sql %  p.values())
+					#cursor.execute(sql % p.values())
+					#except:
+					#	''
 
 	except IndexError, e:
 		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun >'
