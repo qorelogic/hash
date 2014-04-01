@@ -8,6 +8,7 @@ urls = (
 	'/coinwarz', 'coinwarz',
 	'/analyzedb', 'analyzedb',
 	'/arbitrage', 'arbitrage',
+	'/arbitrage.json', 'arbitrageJson',
 )
 
 class index:
@@ -31,8 +32,13 @@ class analyzedb:
 class arbitrage:
 	def GET(self):
 		r = b.arbitrage()
+		web.template.Template.globals['int'] = int
 		render = web.template.render('templates-webpy')
 		return render.arbitrage(r)
+class arbitrageJson:
+	def GET(self):
+		r = b.arbitrage('json')
+		return r
 		
 if __name__ == '__main__':
 	app = web.application(urls, globals())

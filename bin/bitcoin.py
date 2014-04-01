@@ -657,35 +657,36 @@ class broker(object):
 		#res = [1,2,3]
 		return res
 		
-	def arbitrage(self):
+	def arbitrage(self, mode='normal'):
+		import numpy as n
 		prices = {}
-		#j = api().callAPI('https://btc-e.com/api/2/btc_usd/ticker')
-		#p = {'buy':j['ticker']['buy'], 'sell':j['ticker']['sell']}
-		p = {'buy': 123.765, 'sell': 123.554}
-		prices.update({'btce': p})
-			
-		#j = api().callAPI('https://api.bitfinex.com/v1/ticker/btcusd')
-		#p = {'buy':j['bid'], 'sell':j['ask']}
-		p = {'buy': 123.487, 'sell': 123.123}
-		prices.update({'bitfinex': p})
+		prices.update({'data':{}})
+		prices.update({'stats':{}})
 		
-		#print prices
-
+		test = 0
+		
+		if test:
+			p = {'buy': 123.765, 'sell': 123.554}
+		else:
+			j = api().callAPI('https://btc-e.com/api/2/btc_usd/ticker')
+			p = {'buy':j['ticker']['buy'], 'sell':j['ticker']['sell']}
+		prices['data'].update({'btce': p})
+			
+		if test:
+			p = {'buy': 123.487, 'sell': 123.123}
+		else:
+			j = api().callAPI('https://api.bitfinex.com/v1/ticker/btcusd')
+			p = {'buy':j['bid'], 'sell':j['ask']}
+		prices['data'].update({'bitfinex': p})
+		
+		"""
 		p = {'buy': 123.600, 'sell': 123.100}
-		prices.update({'mtgox': p})
+		prices['data'].update({'mtgox': p})
 		
 		p = {'buy': 124.300, 'sell': 123.221}
-		prices.update({'coinex': p})
+		prices['data'].update({'coinex': p})
 		"""
-		grid = {}
-		for i in prices:
-			for j in prices:
-				print j + ' ' + i
-				grid.update({j + '_' + i:[prices[i]['buy']]})
-		print grid
 		"""
-		
-		import numpy as n
 		lp = len(prices)
 		e = n.array([9,7,3,4,5])
 		print e
@@ -695,37 +696,38 @@ class broker(object):
 		m = m.reshape(lp, lp)
 		
 		print m
+		"""
+		
 		l = []
-		for i in prices.values():
+		for i in prices['data'].values():
 			v = i.values()
-			v.append(v[1]/v[0]*100-100)
+			print i.keys()
+			v.append(float(v[1]) / float(v[0]) * 100 - 100)
 			l.append(v)
-		print l
-		print l[1][0]
-		print l[0][1]
 		
 		print ''
 		
 		li = []
-		#cedulon = 012502803100031
+		print n.matrix(l)
 		### the god algorithm!!
 		for i in range(0,len(l)):
 			pcn = []
-			for j in range(0,len(l[i])):
-				pc = l[i][0]/l[j][1]*100-100
+			for j in range(0,len(l)):
+				pc = float(l[i][0]) / float(l[j][1]) * 100 - 100
 				pcn.append(pc)
 			li.append(pcn)
+			li[i].insert(0,prices['data'].keys()[i])
 		### endof the god algorithm!!
 		
-		print n.matrix(l)
 		print ''
-		#print li
 		print n.matrix(li)
+		prices.update({'stats':li})
 		
-		#for i in prices:
-		#	print prices[i]
+		if mode == 'normal':
+			return prices
+		if mode == 'json':
+			return json.dumps(prices)
 		
-		return prices
 
 from lib.CryptsyPythonAPI.Cryptsy import *
 class cryptsy(broker):

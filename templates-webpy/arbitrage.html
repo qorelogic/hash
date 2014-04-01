@@ -7,16 +7,16 @@ background: rgb(0, 128, 0);
 width: 670px;
 height: 100px;
 }
-.col {
-width: 100px;
-background: blue;
+table {
+border: solid 1px rgb(170, 170, 170);
+border-radius: 7px;
 }
-.row {
-width: 100px;
-background: blue;
-float:left;
-position:relative;
-left:100px;
+th {
+background: rgb(233, 233, 233);
+padding: 21px;
+}
+td {
+padding: 13px;
 }
 .bod {
 float: left;
@@ -26,16 +26,43 @@ left: 101px;
 background: rgb(238, 130, 238);
 width: 100px;
 }
+.pos {
+background: rgb(156, 196, 156);
+}
+.neg {
+background: rgb(204, 97, 97);
+color: rgb(226, 226, 226);
+}
 </style>
 </head>
 <body>
-	<div id="grid">
-	$for i in r
-		<div class="row">$i</div>
-	$for i in r
-		<div class="col">$i</div>
-	$for i in r
-		<div class="bod">123</div>
-</div>
+
+	<div class="grid">
+		<table>
+			<tr>
+				<th></th>
+			$for i in r['data']:
+				<th>$i</th>
+			</tr>
+			$#$for i in r['data']:
+				<tr>
+				$for j in r['stats']:
+					$var x: 0
+					$for k in j:
+						$if int(self.x) == 0:
+							<th>$k</th>
+						$if int(self.x) > 0:
+							<td class=" 
+							$if k > 0:
+								pos
+							$else:
+								neg
+							">$k</td>
+						$if int(self.x) == len(r['data']):
+							</tr>
+						$var x: ${int(self.x) + 1}
+			
+		</table>
+	</div>
 </body>
 </html>
