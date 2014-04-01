@@ -656,6 +656,76 @@ class broker(object):
 		c.close()
 		#res = [1,2,3]
 		return res
+		
+	def arbitrage(self):
+		prices = {}
+		#j = api().callAPI('https://btc-e.com/api/2/btc_usd/ticker')
+		#p = {'buy':j['ticker']['buy'], 'sell':j['ticker']['sell']}
+		p = {'buy': 123.765, 'sell': 123.554}
+		prices.update({'btce': p})
+			
+		#j = api().callAPI('https://api.bitfinex.com/v1/ticker/btcusd')
+		#p = {'buy':j['bid'], 'sell':j['ask']}
+		p = {'buy': 123.487, 'sell': 123.123}
+		prices.update({'bitfinex': p})
+		
+		#print prices
+
+		p = {'buy': 123.600, 'sell': 123.100}
+		prices.update({'mtgox': p})
+		
+		p = {'buy': 124.300, 'sell': 123.221}
+		prices.update({'coinex': p})
+		"""
+		grid = {}
+		for i in prices:
+			for j in prices:
+				print j + ' ' + i
+				grid.update({j + '_' + i:[prices[i]['buy']]})
+		print grid
+		"""
+		
+		import numpy as n
+		lp = len(prices)
+		e = n.array([9,7,3,4,5])
+		print e
+		print n.asmatrix(e)
+		le = len(e)
+		m = n.zeros(math.pow(lp,2))
+		m = m.reshape(lp, lp)
+		
+		print m
+		l = []
+		for i in prices.values():
+			v = i.values()
+			v.append(v[1]/v[0]*100-100)
+			l.append(v)
+		print l
+		print l[1][0]
+		print l[0][1]
+		
+		print ''
+		
+		li = []
+		#cedulon = 012502803100031
+		### the god algorithm!!
+		for i in range(0,len(l)):
+			pcn = []
+			for j in range(0,len(l[i])):
+				pc = l[i][0]/l[j][1]*100-100
+				pcn.append(pc)
+			li.append(pcn)
+		### endof the god algorithm!!
+		
+		print n.matrix(l)
+		print ''
+		#print li
+		print n.matrix(li)
+		
+		#for i in prices:
+		#	print prices[i]
+		
+		return prices
 
 from lib.CryptsyPythonAPI.Cryptsy import *
 class cryptsy(broker):

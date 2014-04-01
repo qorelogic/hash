@@ -82,8 +82,12 @@ if __name__ == '__main__':
 		if sys.argv[1] == 'test5':
 			f = sys.argv[2]
 			b.insertOutput(f)
+		if sys.argv[1] == 'test6':
+			b.analyze(False, False)
+		if sys.argv[1] == 'arbitrage':
+			print b.arbitrage()
 			
 	except IndexError, e:
-		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun >'
+		print 'usage: main.py < main | rebalance | liquidate | buybtc | buyltc | getinfo | lb | sweep | check | analyze | analyze-live | analyze-dryrun | arbitrage >'
 
 #o = LocalBitcoinsAPI()

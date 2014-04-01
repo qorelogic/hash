@@ -1,0 +1,41 @@
+$def with (r)
+<html>
+<head>
+<style>
+#grid {
+background: rgb(0, 128, 0);
+width: 670px;
+height: 100px;
+}
+.col {
+width: 100px;
+background: blue;
+}
+.row {
+width: 100px;
+background: blue;
+float:left;
+position:relative;
+left:100px;
+}
+.bod {
+float: left;
+position: relative;
+top: -80px;
+left: 101px;
+background: rgb(238, 130, 238);
+width: 100px;
+}
+</style>
+</head>
+<body>
+	<div id="grid">
+	$for i in r
+		<div class="row">$i</div>
+	$for i in r
+		<div class="col">$i</div>
+	$for i in r
+		<div class="bod">123</div>
+</div>
+</body>
+</html>
