@@ -679,6 +679,20 @@ class broker(object):
 			p = {'buy':j['bid'], 'sell':j['ask']}
 		prices['data'].update({'bitfinex': p})
 		
+		if test:
+			p = {'buy': 123.487, 'sell': 123.123}
+		else:
+			j = api().callAPI('https://www.bitstamp.net/api/ticker/')
+			p = {'buy':j['bid'], 'sell':j['ask']}
+		prices['data'].update({'bitstamp': p})
+
+		if test:
+			p = {'buy': 123.487, 'sell': 123.123}
+		else:
+			j = api().callAPI('https://api.kraken.com/0/public/Ticker?pair=XBTUSD')
+			p = {'buy':j['result']['XXBTZUSD']['a'][0], 'sell':j['result']['XXBTZUSD']['b'][0]}
+		prices['data'].update({'kraken': p})
+
 		"""
 		p = {'buy': 123.600, 'sell': 123.100}
 		prices['data'].update({'mtgox': p})
