@@ -5,6 +5,7 @@ class config:
 	dat = None
 	brokerBlockchains = None
 	tdat = None
+	basedir = '/home/qore/hash'
 	
 	def __init__(self):
 		# define portfolio weights
