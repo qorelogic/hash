@@ -1,0 +1,39 @@
+<body>
+<div id='fb-root'></div>
+<script src='http://connect.facebook.net/en_US/all.js'></script>
+<p>
+    <a href="javascript:;" onclick='postToFeed(); return false;'>Post to Group</a>
+</p>
+<p id='msg'></p>
+
+<script> 
+  var mappid = '223578267853137';
+  var topageid = '381504968654077';
+  FB.init({appId: mappid, status: true, cookie: true});
+
+  function postToFeed() {
+
+    // calling the API ...
+      //FB.api('/'+topageid+'/feed', 'post', 
+      FB.api('/'+mappid+'/feed', 'post', 
+              { 
+                  message     : "It's awesome ...",
+                  link        : 'http://imgur.com/gaLEZem',
+                  picture     : 'http://i.imgur.com/gaLEZem.jpg',
+                  name        : 'Featured of the Day',
+                  to: topageid,
+                  from: topageid,
+                  description : 'Your description'
+          }, 
+          function(response) {
+
+              if (!response || response.error) {
+                  console.log(JSON.stringify(response.error));
+              } else {
+                  console.log('Post ID: ' + response.id);
+              }
+          });
+  }
+
+</script>
+</body>

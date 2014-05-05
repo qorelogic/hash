@@ -7,6 +7,7 @@ urls = (
 	'/', 'index',
 	'/coinwarz', 'coinwarz',
 	'/analyzedb', 'analyzedb'
+	'/facebook', 'facebook'
 )
 
 class index:
@@ -26,6 +27,11 @@ class analyzedb:
 		r = b.analyzedb()
 		render = web.template.render('templates-webpy')
 		return render.analyzedb(r)
+
+class facebook:
+	def GET(self):
+		r = 'test'
+		return r
 		
 if __name__ == '__main__':
 	app = web.application(urls, globals())
